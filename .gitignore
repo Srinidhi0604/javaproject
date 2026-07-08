@@ -1,0 +1,19 @@
+# Compiled Java classes
+bin/
+
+# SQLite WAL journal files (keep the main db, ignore journals)
+*.db-shm
+*.db-wal
+
+# Log files
+*.log
+transactions.log
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+*.iml
+
+# Gemini agent scratch
+.gemini/
