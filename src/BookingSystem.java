@@ -31,15 +31,22 @@ public class BookingSystem {
 
         // 3. Launch HTTP server
         int port = 8080;
-        java.util.Properties props = new java.util.Properties();
-        try (java.io.InputStream is = new java.io.FileInputStream("config.properties")) {
-            props.load(is);
-            String portStr = props.getProperty("server.port");
-            if (portStr != null && !portStr.trim().isEmpty()) {
-                port = Integer.parseInt(portStr.trim());
+
+        // Cloud platforms (Railway, Render, Heroku) inject $PORT — check it first
+        String envPort = System.getenv("PORT");
+        if (envPort != null && !envPort.trim().isEmpty()) {
+            try { port = Integer.parseInt(envPort.trim()); } catch (NumberFormatException ignored) {}
+        } else {
+            java.util.Properties props = new java.util.Properties();
+            try (java.io.InputStream is = new java.io.FileInputStream("config.properties")) {
+                props.load(is);
+                String portStr = props.getProperty("server.port");
+                if (portStr != null && !portStr.trim().isEmpty()) {
+                    port = Integer.parseInt(portStr.trim());
+                }
+            } catch (Exception e) {
+                System.out.println("[BookingSystem] Using default server port: " + port);
             }
-        } catch (Exception e) {
-            System.out.println("[BookingSystem] Using default server port: " + port);
         }
 
         try {

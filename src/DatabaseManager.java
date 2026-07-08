@@ -17,16 +17,22 @@ public class DatabaseManager {
     private static final BlockingQueue<Connection> readPool = new LinkedBlockingQueue<>(POOL_SIZE);
 
     static {
-        // Load externalized database config properties
-        java.util.Properties props = new java.util.Properties();
-        try (java.io.InputStream is = new java.io.FileInputStream("config.properties")) {
-            props.load(is);
-            String url = props.getProperty("db.url");
-            if (url != null && !url.trim().isEmpty()) {
-                dbUrl = url.trim();
+        // Check environment variable first (set by cloud platforms like Railway)
+        String envDb = System.getenv("DATABASE_URL");
+        if (envDb != null && !envDb.trim().isEmpty()) {
+            dbUrl = envDb.trim();
+        } else {
+            // Load externalized database config properties
+            java.util.Properties props = new java.util.Properties();
+            try (java.io.InputStream is = new java.io.FileInputStream("config.properties")) {
+                props.load(is);
+                String url = props.getProperty("db.url");
+                if (url != null && !url.trim().isEmpty()) {
+                    dbUrl = url.trim();
+                }
+            } catch (java.io.IOException e) {
+                System.out.println("[DatabaseManager] config.properties loading skipped. Using default URL: " + dbUrl);
             }
-        } catch (java.io.IOException e) {
-            System.out.println("[DatabaseManager] config.properties loading skipped. Using default URL: " + dbUrl);
         }
 
         try {
