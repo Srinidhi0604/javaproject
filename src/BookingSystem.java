@@ -71,6 +71,7 @@ public class BookingSystem {
             server.createContext("/api/notifications", new NotificationsHandler());
             server.createContext("/api/admin/analytics", new AdminAnalyticsHandler());
             server.createContext("/api/catalog/add", new AddCatalogItemHandler());
+            server.createContext("/api/slots", new SlotsHandler());
 
             server.setExecutor(null); // default executor
             server.start();
@@ -934,6 +935,33 @@ public class BookingSystem {
                 sendJsonResponse(exchange, 200, "{\"success\":\"Catalog item registered successfully!\"}");
             } catch (Exception e) {
                 sendJsonResponse(exchange, 500, "{\"error\":\"Failed to register item: " + escapeJson(e.getMessage()) + "\"}");
+            }
+        }
+    }
+
+    /**
+     * GET /api/slots?catalog_item_id=X
+     * Returns all available time slots for the given catalog item.
+     */
+    static class SlotsHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            if (!exchange.getRequestMethod().equals("GET")) {
+                sendJsonResponse(exchange, 405, "{\"error\":\"Method not allowed\"}");
+                return;
+            }
+            try {
+                String query = exchange.getRequestURI().getQuery();
+                String idStr = getQueryParam(query, "catalog_item_id");
+                if (idStr.isEmpty()) {
+                    sendJsonResponse(exchange, 400, "{\"error\":\"catalog_item_id required\"}");
+                    return;
+                }
+                int catalogItemId = Integer.parseInt(idStr);
+                String slotsJson = ShowtimeOrSlotDAO.getSlotsJson(catalogItemId);
+                sendJsonResponse(exchange, 200, slotsJson);
+            } catch (Exception e) {
+                sendJsonResponse(exchange, 500, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
             }
         }
     }

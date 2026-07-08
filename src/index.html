@@ -2744,6 +2744,32 @@
             }
         }
 
+        // Normalize a raw API catalog item to the shape the UI expects
+        function normalizeItem(raw) {
+            return {
+                id:               raw.id,
+                title:            raw.title || '',
+                description:      raw.description || '',
+                category:         raw.category || '',
+                genre_or_cuisine: raw.genre_or_cuisine || raw.genreOrCuisine || '',
+                durationMinutes:  raw.durationMinutes || raw.duration_minutes || 0,
+                base_price:       typeof raw.base_price === 'number' ? raw.base_price : parseFloat(raw.base_price) || 0,
+                surcharge:        typeof raw.surcharge === 'number' ? raw.surcharge : parseFloat(raw.surcharge) || 0,
+                format:           raw.format || '',
+                isSpecial:        raw.isSpecial === true || raw.is_special === 1 || raw.is_special === true,
+                venueName:        raw.venueName || raw.venue_name || '',
+                venueCity:        raw.venueCity || raw.venue_city || '',
+                venueType:        raw.venueType || raw.venue_type || '',
+                avgRating:        raw.avgRating != null ? parseFloat(raw.avgRating) : 0,
+                reviewCount:      raw.reviewCount || raw.review_count || 0,
+                wishlisted:       raw.wishlisted === true || raw.wishlisted === 1,
+                // showtimes comes from a separate sub-query; default to empty array
+                // The modal fetch will get real slots via openBookingModal→loadSlots
+                showtimes:        Array.isArray(raw.showtimes) ? raw.showtimes : 
+                                  (raw.showtimes && typeof raw.showtimes === 'string' ? raw.showtimes.split(',').map(s=>s.trim()).filter(Boolean) : [])
+            };
+        }
+
         // ------------------ CATALOG FETCH & FILTERS ------------------
         async function loadCatalog() {
             const city = document.getElementById('citySelect').value;
@@ -2754,7 +2780,7 @@
             try {
                 const res = await fetch(url);
                 const data = await res.json();
-                catalogItems = data;
+                catalogItems = data.map ? data.map(normalizeItem) : [];
                 
                 populateCatalogGrid();
                 populateCarouselBanner();
@@ -3128,20 +3154,55 @@
             document.querySelectorAll('.modal-flow-step').forEach(step => step.classList.remove('active'));
             document.getElementById('bookingStep1').classList.add('active');
 
-            // Render Time slots
+            // Render Time slots — fetch live from server
             const slotsContainer = document.getElementById('modalSlotsList');
-            slotsContainer.innerHTML = '';
-            item.showtimes.forEach(st => {
-                const pill = document.createElement('button');
-                pill.className = 'time-slot-pill';
-                pill.innerText = st;
-                pill.onclick = () => {
-                    slotsContainer.querySelectorAll('.time-slot-pill').forEach(p => p.classList.remove('selected'));
-                    pill.classList.add('selected');
-                    selectedSlot = st;
-                };
-                slotsContainer.appendChild(pill);
-            });
+            slotsContainer.innerHTML = '<span style="color:var(--text-secondary);font-size:0.9rem;">Loading slots…</span>';
+            
+            fetch(`${API_ROOT}/api/slots?catalog_item_id=${item.id}`)
+                .then(r => r.json())
+                .then(slots => {
+                    slotsContainer.innerHTML = '';
+                    const timeList = slots.length > 0 
+                        ? slots 
+                        : (item.showtimes && item.showtimes.length > 0 ? item.showtimes.map(t => ({start_time: t})) : []);
+
+                    if (timeList.length === 0) {
+                        slotsContainer.innerHTML = '<span style="color:var(--text-secondary);font-size:0.85rem;">No available slots</span>';
+                        return;
+                    }
+                    timeList.forEach(slot => {
+                        const timeLabel = slot.start_time || slot;
+                        const pill = document.createElement('button');
+                        pill.className = 'time-slot-pill';
+                        pill.innerText = timeLabel;
+                        pill.onclick = () => {
+                            slotsContainer.querySelectorAll('.time-slot-pill').forEach(p => p.classList.remove('selected'));
+                            pill.classList.add('selected');
+                            selectedSlot = timeLabel;
+                        };
+                        slotsContainer.appendChild(pill);
+                    });
+                })
+                .catch(() => {
+                    // Fallback to stored showtimes if API fails
+                    slotsContainer.innerHTML = '';
+                    const fallback = item.showtimes || [];
+                    if (fallback.length === 0) {
+                        slotsContainer.innerHTML = '<span style="color:var(--text-secondary);font-size:0.85rem;">No available slots</span>';
+                        return;
+                    }
+                    fallback.forEach(st => {
+                        const pill = document.createElement('button');
+                        pill.className = 'time-slot-pill';
+                        pill.innerText = st;
+                        pill.onclick = () => {
+                            slotsContainer.querySelectorAll('.time-slot-pill').forEach(p => p.classList.remove('selected'));
+                            pill.classList.add('selected');
+                            selectedSlot = st;
+                        };
+                        slotsContainer.appendChild(pill);
+                    });
+                });
 
             // Handle Category Specific Visualizations
             document.getElementById('movieSeatVisualizer').style.display = 'none';
