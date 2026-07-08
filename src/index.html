@@ -1,0 +1,3714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bookMyDistrict — Unified Booking Super-App</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+
+        :root {
+            --bg-deep: #090b10;
+            --bg-surface: #12151e;
+            --bg-navbar: #1a1d26;
+            --brand-crimson: #f84464;
+            --brand-crimson-hover: #e03554;
+            --border-glow: rgba(255, 255, 255, 0.06);
+            --border-hover: rgba(255, 255, 255, 0.15);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-glow: #38bdf8;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-deep);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #232734;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #343a4e;
+        }
+
+        /* Authentication Portal */
+        .auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 30%, #201335 0%, var(--bg-deep) 70%);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            backdrop-filter: blur(8px);
+        }
+
+        .auth-card {
+            background: rgba(18, 21, 30, 0.85);
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 440px;
+            padding: 3rem 2.5rem;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            animation: scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.92); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-logo {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: -1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-logo span {
+            background: var(--brand-crimson);
+            padding: 0.2rem 0.6rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(248, 68, 100, 0.4);
+        }
+
+        .auth-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .auth-tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 0.3rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-glow);
+        }
+
+        .auth-tab {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 0.6rem;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .auth-tab.active {
+            background: var(--brand-crimson);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(248, 68, 100, 0.3);
+        }
+
+        .input-group {
+            margin-bottom: 1.2rem;
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-field {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border-glow);
+            border-radius: 8px;
+            padding: 0.8rem 1rem;
+            color: #fff;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .input-field:focus {
+            border-color: var(--brand-crimson);
+            box-shadow: 0 0 0 2px rgba(248, 68, 100, 0.2);
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .select-field {
+            appearance: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: var(--brand-crimson);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 0.9rem;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(248, 68, 100, 0.3);
+            margin-top: 1rem;
+        }
+
+        .btn-primary:hover {
+            background: var(--brand-crimson-hover);
+            transform: translateY(-1px);
+        }
+
+        .auth-hints {
+            margin-top: 1.5rem;
+            background: rgba(248, 68, 100, 0.05);
+            border: 1px dashed rgba(248, 68, 100, 0.2);
+            border-radius: 8px;
+            padding: 0.8rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .auth-hints strong {
+            color: var(--brand-crimson);
+        }
+
+        /* Top Navigation Bar */
+        header {
+            background: var(--bg-navbar);
+            border-bottom: 1px solid var(--border-glow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(12px);
+        }
+
+        .navbar {
+            max-width: 1300px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            gap: 2rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #fff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            letter-spacing: -1px;
+            cursor: pointer;
+        }
+
+        .logo span {
+            background: var(--brand-crimson);
+            color: #fff;
+            padding: 0.1rem 0.5rem;
+            border-radius: 6px;
+            font-weight: 900;
+        }
+
+        .search-container {
+            flex-grow: 1;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .search-bar {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border-glow);
+            border-radius: 8px;
+            padding: 0.6rem 1rem 0.6rem 2.5rem;
+            color: #fff;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .search-bar:focus {
+            border-color: var(--brand-crimson);
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.9rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            fill: var(--text-secondary);
+        }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .city-picker {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-glow);
+            border-radius: 8px;
+            padding: 0.5rem 0.8rem;
+            cursor: pointer;
+        }
+
+        .city-select {
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .city-select option {
+            background: var(--bg-navbar);
+            color: #fff;
+        }
+
+        .wallet-badge {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid var(--border-glow);
+            border-radius: 8px;
+            padding: 0.5rem 0.8rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .wallet-badge:hover {
+            border-color: var(--warning);
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.15);
+        }
+
+        .wallet-badge span {
+            color: var(--warning);
+        }
+
+        .btn-profile {
+            background: transparent;
+            border: 1px solid var(--border-glow);
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-profile:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--text-secondary);
+        }
+
+        /* Sub Navigation Menu */
+        .sub-navbar {
+            background: rgba(18, 21, 30, 0.7);
+            border-bottom: 1px solid var(--border-glow);
+            backdrop-filter: blur(8px);
+        }
+
+        .sub-navbar-container {
+            max-width: 1300px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.6rem 2rem;
+        }
+
+        .category-tabs {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .category-tab {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding-bottom: 0.4rem;
+            border-bottom: 2px solid transparent;
+        }
+
+        .category-tab:hover, .category-tab.active {
+            color: #fff;
+        }
+
+        .category-tab.active {
+            border-color: var(--brand-crimson);
+            color: var(--brand-crimson);
+        }
+
+        .nav-shortcuts {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.85rem;
+        }
+
+        .nav-shortcut {
+            color: var(--text-secondary);
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .nav-shortcut:hover {
+            color: #fff;
+        }
+
+        /* Main Workspace */
+        main {
+            flex-grow: 1;
+            width: 100%;
+            max-width: 1300px;
+            margin: 1.5rem auto;
+            padding: 0 2rem;
+        }
+
+        .section {
+            display: none;
+            animation: fadeSlide 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeSlide {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Image Carousel Slider */
+        .carousel-wrapper {
+            position: relative;
+            width: 100%;
+            height: 350px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+            background: #000;
+        }
+
+        .carousel-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1);
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: flex-end;
+            z-index: 1;
+        }
+
+        .carousel-slide.active {
+            opacity: 1;
+            z-index: 2;
+        }
+
+        .carousel-shade {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(9, 11, 16, 0.95) 35%, rgba(9, 11, 16, 0.25) 75%, transparent 100%);
+            z-index: 3;
+        }
+
+        .carousel-body {
+            position: relative;
+            z-index: 4;
+            padding: 3.5rem;
+            color: #fff;
+            max-width: 55%;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            height: 100%;
+            justify-content: center;
+        }
+
+        .carousel-tag {
+            background: var(--brand-crimson);
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            align-self: flex-start;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .carousel-headline {
+            font-size: 2.4rem;
+            font-weight: 800;
+            line-height: 1.15;
+            letter-spacing: -0.5px;
+        }
+
+        .carousel-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            align-items: center;
+        }
+
+        .carousel-rating {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fbbf24;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+
+        .carousel-desc {
+            font-size: 0.9rem;
+            color: #cbd5e1;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .carousel-btn {
+            background: var(--brand-crimson);
+            color: #fff;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-top: 0.8rem;
+            align-self: flex-start;
+            transition: all 0.3s;
+        }
+
+        .carousel-btn:hover {
+            background: var(--brand-crimson-hover);
+            transform: scale(1.02);
+        }
+
+        /* General layout: Grid + Sidebar */
+        .workspace-layout {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .workspace-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Sidebar Filters */
+        .filter-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-glow);
+            border-radius: 16px;
+            padding: 1.5rem;
+            height: fit-content;
+            backdrop-filter: blur(10px);
+        }
+
+        .filter-panel h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1.2rem;
+            padding-bottom: 0.6rem;
+            border-bottom: 1px solid var(--border-glow);
+        }
+
+        .filter-section {
+            margin-bottom: 1.8rem;
+        }
+
+        .filter-title {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 0.8rem;
+        }
+
+        .filter-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .filter-pill {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-glow);
+            color: var(--text-primary);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-pill:hover {
+            border-color: var(--border-hover);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .filter-pill.active {
+            background: var(--brand-crimson);
+            border-color: var(--brand-crimson);
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(248, 68, 100, 0.25);
+        }
+
+        /* Recommendation Section */
+        .recommended-section {
+            margin-bottom: 2rem;
+            background: rgba(248, 68, 100, 0.02);
+            border: 1px dashed rgba(248, 68, 100, 0.15);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: none; /* Shown dynamically if user has history */
+        }
+
+        .recommended-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.2rem;
+        }
+
+        .recommended-header h2 {
+            font-size: 1.2rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .recommended-header h2 span {
+            color: var(--brand-crimson);
+        }
+
+        .recommended-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Catalog Card grid */
+        .catalog-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .catalog-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .catalog-header h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+        .catalog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 1.8rem;
+        }
+
+        /* Immersive District Cards */
+        .catalog-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-glow);
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+
+        .catalog-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--border-hover);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-banner {
+            position: relative;
+            width: 100%;
+            padding-top: 60%; /* Horizontal banner style card */
+            background: #1e293b;
+        }
+
+        .card-banner-fallback {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #1c2230 0%, #29183b 100%);
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .card-banner-fallback h3 {
+            font-size: 1.1rem;
+            font-weight: 800;
+            margin-bottom: 0.2rem;
+            line-height: 1.2;
+        }
+
+        .card-banner-fallback p {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .card-tag {
+            position: absolute;
+            top: 0.8rem;
+            left: 0.8rem;
+            background: var(--brand-crimson);
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            text-transform: uppercase;
+            z-index: 10;
+        }
+
+        .btn-wishlist {
+            position: absolute;
+            top: 0.8rem;
+            right: 0.8rem;
+            background: rgba(0, 0, 0, 0.6);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.2s;
+        }
+
+        .btn-wishlist svg {
+            fill: #fff;
+            width: 14px;
+            height: 14px;
+            transition: fill 0.2s;
+        }
+
+        .btn-wishlist.active svg {
+            fill: var(--brand-crimson);
+        }
+
+        .card-rating-badge {
+            position: absolute;
+            bottom: 0.8rem;
+            left: 0.8rem;
+            background: rgba(0, 0, 0, 0.75);
+            color: #fbbf24;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+
+        .card-info {
+            padding: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            flex-grow: 1;
+        }
+
+        .card-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .card-venue {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .card-genre {
+            font-size: 0.75rem;
+            color: var(--brand-crimson);
+            font-weight: 600;
+        }
+
+        .card-footer {
+            margin-top: auto;
+            border-top: 1px solid var(--border-glow);
+            padding: 1rem 1.2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-price {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .card-price span {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        .btn-card-book {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glow);
+            color: #fff;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-card-book:hover {
+            background: var(--brand-crimson);
+            border-color: var(--brand-crimson);
+            box-shadow: 0 4px 10px rgba(248, 68, 100, 0.3);
+        }
+
+        /* Integrated Booking Modal overlays */
+        .modal-mask {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1500;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .modal-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-glow);
+            border-radius: 24px;
+            width: 100%;
+            max-width: 640px;
+            padding: 2.5rem;
+            box-shadow: 0 25px 55px rgba(0, 0, 0, 0.6);
+            position: relative;
+            animation: modalSlide 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes modalSlide {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-box-close {
+            position: absolute;
+            top: 1.2rem;
+            right: 1.5rem;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 2rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .modal-box-close:hover {
+            color: #fff;
+        }
+
+        .modal-header-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-flow-step {
+            display: none;
+        }
+
+        .modal-flow-step.active {
+            display: block;
+        }
+
+        /* Movie Seat Picker design */
+        .seat-grid-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 1.5rem 0;
+        }
+
+        .screen-line {
+            width: 80%;
+            height: 6px;
+            background: linear-gradient(90deg, transparent 0%, var(--brand-crimson) 50%, transparent 100%);
+            border-radius: 50%;
+            box-shadow: 0 8px 20px rgba(248, 68, 100, 0.4);
+            margin-bottom: 2rem;
+            position: relative;
+            text-align: center;
+        }
+
+        .screen-line span {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .seat-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .seat-unit {
+            width: 30px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glow);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .seat-unit:hover {
+            border-color: var(--brand-crimson);
+            background: rgba(248, 68, 100, 0.1);
+        }
+
+        .seat-unit.selected {
+            background: var(--brand-crimson);
+            border-color: var(--brand-crimson);
+            color: #fff;
+            box-shadow: 0 0 10px rgba(248, 68, 100, 0.4);
+        }
+
+        /* Dining Party selector */
+        .guests-selector {
+            display: flex;
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .guests-btn {
+            flex-grow: 1;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-glow);
+            color: #fff;
+            padding: 0.8rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .guests-btn:hover {
+            border-color: var(--text-secondary);
+        }
+
+        .guests-btn.selected {
+            background: var(--brand-crimson);
+            border-color: var(--brand-crimson);
+            box-shadow: 0 4px 12px rgba(248, 68, 100, 0.3);
+        }
+
+        /* Gigs Tier Picker */
+        .tier-picker-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tier-row {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            padding: 1.2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tier-row:hover {
+            border-color: var(--border-hover);
+        }
+
+        .tier-row.selected {
+            border-color: var(--brand-crimson);
+            background: rgba(248, 68, 100, 0.03);
+        }
+
+        .tier-info h4 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+        }
+
+        .tier-info p {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .tier-price {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        /* Slot selector list */
+        .time-slots-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .time-slot-pill {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-glow);
+            color: #fff;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .time-slot-pill.selected {
+            background: var(--brand-crimson);
+            border-color: var(--brand-crimson);
+            box-shadow: 0 4px 10px rgba(248, 68, 100, 0.3);
+        }
+
+        /* Checkout Details box */
+        .checkout-details-box {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .checkout-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+        }
+
+        .checkout-row.grand-total {
+            border-top: 1px solid var(--border-glow);
+            padding-top: 0.8rem;
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: #fff;
+        }
+
+        .coupon-drawer {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Visual receipt ticket styling */
+        .ticket-receipt-card {
+            background: linear-gradient(135deg, #1b2030 0%, #0c0f16 100%);
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            padding: 2.2rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .ticket-receipt-card::before, .ticket-receipt-card::after {
+            content: '';
+            position: absolute;
+            top: 55%;
+            width: 24px;
+            height: 24px;
+            background: var(--bg-surface);
+            border-radius: 50%;
+            z-index: 10;
+        }
+
+        .ticket-receipt-card::before { left: -12px; }
+        .ticket-receipt-card::after { right: -12px; }
+
+        .ticket-divider {
+            border-top: 1px dashed var(--border-glow);
+            margin: 0.5rem 0;
+        }
+
+        .split-bill-sim {
+            background: rgba(56, 189, 248, 0.05);
+            border: 1px dashed rgba(56, 189, 248, 0.3);
+            border-radius: 12px;
+            padding: 1.2rem;
+            margin-top: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .split-bill-sim h4 {
+            font-size: 0.9rem;
+            font-weight: 800;
+            color: var(--text-glow);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        /* Reviews feed design */
+        .reviews-drawer {
+            margin-top: 2rem;
+            border-top: 1px solid var(--border-glow);
+            padding-top: 1.5rem;
+        }
+
+        .review-box {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .review-user-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .rating-stars {
+            color: #fbbf24;
+            font-weight: 700;
+        }
+
+        /* Profile & Order lists */
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+        }
+
+        .orders-table th, .orders-table td {
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-glow);
+        }
+
+        .orders-table th {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .orders-table td {
+            font-size: 0.9rem;
+        }
+
+        .badge-status {
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .badge-status.confirmed { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .badge-status.cancelled { background: rgba(239, 68, 68, 0.1); color: var(--brand-crimson); }
+
+        /* Real-time notification toast overlay */
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-width: 360px;
+            width: 100%;
+        }
+
+        .toast-card {
+            background: rgba(26, 29, 38, 0.95);
+            border-left: 4px solid var(--brand-crimson);
+            border-top: 1px solid var(--border-glow);
+            border-right: 1px solid var(--border-glow);
+            border-bottom: 1px solid var(--border-glow);
+            border-radius: 12px;
+            padding: 1.2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            animation: toastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes toastSlideIn {
+            from { transform: translateX(50px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .toast-title {
+            font-size: 0.9rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .toast-body {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* Admin Panels & Analytics graphs */
+        .admin-analytics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2.5rem;
+        }
+
+        @media (max-width: 800px) {
+            .admin-analytics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-glow);
+            border-radius: 16px;
+            padding: 1.8rem;
+        }
+
+        .chart-box h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #fff;
+        }
+
+        .bar-chart-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .chart-bar-row {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .chart-label-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .chart-bar-bg {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 4px;
+            height: 10px;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .chart-bar-fill {
+            background: linear-gradient(90deg, var(--brand-crimson) 0%, #fb7185 100%);
+            height: 100%;
+            border-radius: 4px;
+            width: 0; /* Animated dynamically */
+            transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Wallet Ledger Feed */
+        .ledger-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+        }
+
+        .ledger-row {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-glow);
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ledger-info h4 {
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        .ledger-info p {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .ledger-amount {
+            font-weight: 800;
+            font-size: 1rem;
+        }
+
+        .ledger-amount.earn { color: var(--success); }
+        .ledger-amount.burn { color: var(--brand-crimson); }
+
+        /* LIVE NATION INSPIRED DARK & CRIMSON THEME OVERRIDES */
+        :root {
+            --bg-deep: #080a0f !important;
+            --bg-surface: #10141e !important;
+            --bg-navbar: #05070a !important;
+            --brand-crimson: #e82c4a !important;
+            --brand-crimson-hover: #ff3b5c !important;
+            --border-glow: rgba(255, 255, 255, 0.08) !important;
+            --border-hover: rgba(255, 255, 255, 0.2) !important;
+            --text-primary: #ffffff !important;
+            --text-secondary: #94a3b8 !important;
+            --text-glow: #e82c4a !important;
+            --success: #10b981 !important;
+            --warning: #f59e0b !important;
+        }
+
+        body {
+            background-color: var(--bg-deep) !important;
+            color: var(--text-primary) !important;
+        }
+
+        /* ================================================================
+           AUTH PORTAL — FULL-SCREEN SPLIT LAYOUT (matches landing page)
+           ================================================================ */
+
+        .auth-overlay {
+            position: fixed !important;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            z-index: 3000;
+            overflow: hidden;
+        }
+
+        /* LEFT: Animated hero panel */
+        .auth-hero-panel {
+            flex: 1.1;
+            position: relative;
+            background: #04050a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Animated radial orbs mimicking landing page hero */
+        .auth-hero-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(90px);
+            animation: authOrbFloat 8s ease-in-out infinite alternate;
+        }
+        .auth-orb-1 {
+            width: 520px; height: 520px;
+            background: radial-gradient(circle, rgba(232,44,74,0.35) 0%, transparent 70%);
+            top: -120px; left: -120px;
+        }
+        .auth-orb-2 {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(99,44,232,0.25) 0%, transparent 70%);
+            bottom: -80px; right: -80px;
+            animation-delay: -4s;
+        }
+
+        @keyframes authOrbFloat {
+            from { transform: translate(0, 0) scale(1); }
+            to   { transform: translate(30px, 20px) scale(1.08); }
+        }
+
+        /* Dot-grid texture overlay */
+        .auth-hero-grid {
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+            background-size: 32px 32px;
+            pointer-events: none;
+        }
+
+        /* Scanline noise */
+        .auth-hero-noise {
+            position: absolute;
+            inset: 0;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .auth-hero-content {
+            position: relative;
+            z-index: 2;
+            padding: 4rem 3.5rem;
+            max-width: 560px;
+        }
+
+        .auth-brand-logo {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: #fff;
+            margin-bottom: 3rem;
+        }
+        .auth-brand-logo span {
+            display: inline-block;
+            background: var(--brand-crimson, #e82c4a);
+            padding: 0.1em 0.35em;
+            border-radius: 6px;
+            margin-right: 1px;
+        }
+
+        .auth-hero-headline {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(2.8rem, 5vw, 4.2rem);
+            font-weight: 900;
+            line-height: 1.05;
+            letter-spacing: -2px;
+            color: #fff;
+            margin: 0 0 1.2rem 0;
+        }
+
+        .auth-hero-sub {
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.55);
+            line-height: 1.6;
+            margin-bottom: 2.5rem;
+            max-width: 420px;
+        }
+
+        .auth-feature-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-bottom: 3rem;
+        }
+
+        .auth-pill {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 50px;
+            padding: 0.45rem 1.1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.75);
+            backdrop-filter: blur(8px);
+            transition: all 0.2s;
+        }
+        .auth-pill:hover {
+            background: rgba(232,44,74,0.15);
+            border-color: rgba(232,44,74,0.4);
+            color: #fff;
+        }
+
+        .auth-stats-row {
+            display: flex;
+            gap: 2.5rem;
+        }
+        .auth-stat {
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.4);
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+        .auth-stat span {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.9rem;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -1px;
+            line-height: 1;
+        }
+
+        /* RIGHT: Form panel */
+        .auth-form-panel {
+            width: 440px;
+            flex-shrink: 0;
+            background: #08090e;
+            border-left: 1px solid rgba(255,255,255,0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1.5rem;
+            overflow-y: auto;
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 360px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.4rem;
+        }
+
+        .auth-logo-small {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #fff;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        .auth-logo-small span {
+            display: inline-block;
+            background: var(--brand-crimson, #e82c4a);
+            padding: 0.05em 0.3em;
+            border-radius: 5px;
+            margin-right: 1px;
+        }
+
+        .auth-card-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.8px;
+            margin: 0 0 0.2rem 0;
+        }
+
+        .auth-subtitle {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.45);
+        }
+
+        .auth-header { display: flex; flex-direction: column; gap: 0; }
+
+        .auth-tabs {
+            display: flex;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 4px;
+        }
+        .auth-tab {
+            flex: 1;
+            padding: 0.55rem;
+            border: none;
+            background: transparent;
+            color: rgba(255,255,255,0.45);
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-radius: 7px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .auth-tab.active {
+            background: var(--brand-crimson, #e82c4a);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(232,44,74,0.4);
+        }
+
+        #authForm { display: flex; flex-direction: column; gap: 1rem; }
+
+        .auth-submit-btn {
+            width: 100% !important;
+            padding: 0.85rem !important;
+            font-size: 0.95rem !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.03em !important;
+            border-radius: 10px !important;
+            margin-top: 0.5rem !important;
+        }
+
+        .auth-guest-btn {
+            width: 100%;
+            padding: 0.7rem;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.5);
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .auth-guest-btn:hover {
+            border-color: rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.8);
+            background: rgba(255,255,255,0.04);
+        }
+
+        .auth-hints {
+            background: rgba(232,44,74,0.06);
+            border: 1px solid rgba(232,44,74,0.15);
+            border-radius: 10px;
+            padding: 0.9rem 1rem;
+            color: rgba(255,255,255,0.45);
+            font-size: 0.78rem;
+            line-height: 1.8;
+        }
+        .auth-hints strong { color: rgba(255,255,255,0.7); }
+        .auth-hints code {
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+            padding: 0.1em 0.35em;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.82rem;
+        }
+
+        /* Responsive: stack on mobile */
+        @media (max-width: 768px) {
+            .auth-overlay { flex-direction: column; }
+            .auth-hero-panel { flex: 0 0 220px; }
+            .auth-hero-headline { font-size: 2rem; }
+            .auth-form-panel { width: 100%; border-left: none; border-top: 1px solid rgba(255,255,255,0.06); }
+        }
+
+        /* Align Buttons and interactive cards */
+        .btn-primary, .carousel-btn, #btnLoginSubmit, .widget-search-btn {
+            background: var(--brand-crimson) !important;
+            color: #ffffff !important;
+            border: none !important;
+            border-radius: 8px !important;
+            font-weight: 700 !important;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            box-shadow: 0 4px 15px rgba(232, 44, 74, 0.3) !important;
+        }
+
+        .btn-primary:hover, .carousel-btn:hover, #btnLoginSubmit:hover, .widget-search-btn:hover {
+            background: var(--brand-crimson-hover) !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 6px 20px rgba(232, 44, 74, 0.5) !important;
+        }
+
+        .auth-tab.active {
+            background: var(--brand-crimson) !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(232, 44, 74, 0.3) !important;
+        }
+
+        .filter-pill.active {
+            background: var(--brand-crimson) !important;
+            border-color: var(--brand-crimson) !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 10px rgba(232, 44, 74, 0.25) !important;
+        }
+
+        .category-tab.active {
+            border-color: var(--brand-crimson) !important;
+            color: var(--brand-crimson) !important;
+        }
+
+        .wallet-badge {
+            background: linear-gradient(135deg, #181d29 0%, #0d1017 100%) !important;
+            border: 1px solid var(--border-glow) !important;
+        }
+
+        .wallet-badge:hover {
+            border-color: var(--warning) !important;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.15) !important;
+        }
+
+        .wallet-badge span {
+            color: var(--warning) !important;
+        }
+
+        /* Center Carousel body items just like in the Live Nation screenshot */
+        .carousel-body {
+            max-width: 100% !important;
+            align-items: center !important;
+            justify-content: center !important;
+            text-align: center !important;
+            padding: 3rem !important;
+        }
+
+        .carousel-btn {
+            align-self: center !important;
+            border-radius: 20px !important;
+            padding: 0.7rem 2rem !important;
+            text-transform: uppercase !important;
+            font-weight: 800 !important;
+            font-size: 0.85rem !important;
+            letter-spacing: 0.5px !important;
+        }
+
+        .carousel-headline {
+            font-size: 3.2rem !important;
+            font-weight: 900 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+            margin-bottom: 0.5rem !important;
+        }
+
+        .carousel-desc {
+            max-width: 650px !important;
+            margin: 0.4rem auto !important;
+            color: #cbd5e1 !important;
+        }
+
+        .carousel-meta {
+            justify-content: center !important;
+        }
+
+        .carousel-rating {
+            background: rgba(255, 255, 255, 0.08) !important;
+            color: #fbbf24 !important;
+        }
+
+        .btn-wishlist.active svg {
+            fill: var(--brand-crimson) !important;
+        }
+
+        .card-banner-fallback {
+            background: linear-gradient(135deg, #151821 0%, #1d1526 100%) !important;
+        }
+
+        .card-tag {
+            background: var(--brand-crimson) !important;
+            color: #ffffff !important;
+        }
+
+        .seat-grid-screen {
+            background: linear-gradient(180deg, rgba(232, 44, 74, 0.15) 0%, transparent 100%) !important;
+            border-top: 3px solid var(--brand-crimson) !important;
+            box-shadow: 0 4px 20px rgba(232, 44, 74, 0.1) !important;
+        }
+
+        .seat.selected {
+            background: var(--brand-crimson) !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 10px rgba(232, 44, 74, 0.4) !important;
+        }
+
+        .seat.occupied {
+            background: #232734 !important;
+            color: #4b5563 !important;
+        }
+
+        .seat.available:hover {
+            background: var(--brand-crimson-hover) !important;
+            color: #ffffff !important;
+        }
+
+        .checkout-summary-box {
+            background: rgba(18, 21, 30, 0.9) !important;
+            border: 1px solid var(--border-glow) !important;
+        }
+
+        .toast-notification {
+            background: var(--brand-crimson) !important;
+            color: #ffffff !important;
+            border: none !important;
+            box-shadow: 0 10px 30px rgba(232, 44, 74, 0.3) !important;
+        }
+
+        .toast-notification span {
+            color: #ffffff !important;
+        }
+
+        .toast-icon {
+            fill: #ffffff !important;
+        }
+
+        .progress-bar-fill {
+            background: var(--brand-crimson) !important;
+        }
+
+        .stat-card {
+            background: var(--bg-surface) !important;
+            border: 1px solid var(--border-glow) !important;
+        }
+
+        /* Adjust input elements to be clean modern dark style */
+        .input-field {
+            background: rgba(0, 0, 0, 0.25) !important;
+            border: 1px solid var(--border-glow) !important;
+            color: #ffffff !important;
+        }
+
+        .input-field:focus {
+            border-color: var(--brand-crimson) !important;
+            box-shadow: 0 0 0 2px rgba(232, 44, 74, 0.2) !important;
+        }
+
+        /* Change chart fill to crimson shades */
+        .chart-bar-fill {
+            background: var(--brand-crimson) !important;
+        }
+        
+        .chart-bar-fill-secondary {
+            background: #475569 !important;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar-thumb {
+            background: #222632 !important;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #33394c !important;
+        }
+
+        /* Logo styling matching red/white contrast */
+        .logo span, .auth-logo span {
+            background: var(--brand-crimson) !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 15px rgba(232, 44, 74, 0.4) !important;
+        }
+        
+        /* Banner separator line */
+        .banner-separator {
+            background: linear-gradient(90deg, transparent 0%, var(--brand-crimson) 50%, transparent 100%) !important;
+        }
+
+        /* OVERLAPPING SEARCH FILTER WIDGET STYLING */
+        .search-overlay-widget {
+            background: rgba(16, 20, 30, 0.85) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-radius: 16px !important;
+            padding: 1.5rem 2rem !important;
+            width: 100% !important;
+            max-width: 1220px !important;
+            margin: -70px auto 3rem auto !important; /* Overlap the carousel wrapper */
+            position: relative !important;
+            z-index: 100 !important;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8) !important;
+            backdrop-filter: blur(16px) !important;
+        }
+
+        .search-widget-title {
+            font-size: 1.25rem !important;
+            font-weight: 800 !important;
+            color: #ffffff !important;
+            margin-bottom: 1rem !important;
+            letter-spacing: -0.5px !important;
+        }
+
+        .search-widget-row {
+            display: flex !important;
+            gap: 1rem !important;
+            align-items: center !important;
+            flex-wrap: wrap !important;
+        }
+
+        .search-select-wrapper {
+            background: rgba(0, 0, 0, 0.3) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-radius: 10px !important;
+            padding: 0.65rem 1rem !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.65rem !important;
+            flex: 1 1 200px !important;
+            position: relative !important;
+            transition: border-color 0.3s !important;
+        }
+
+        .search-select-wrapper:focus-within {
+            border-color: var(--brand-crimson) !important;
+        }
+
+        .search-select-wrapper select, .search-select-wrapper input {
+            background: transparent !important;
+            border: none !important;
+            color: #ffffff !important;
+            font-size: 0.9rem !important;
+            font-weight: 600 !important;
+            width: 100% !important;
+            outline: none !important;
+        }
+
+        .search-select-wrapper select option {
+            background: #10141e !important;
+            color: #ffffff !important;
+        }
+
+        .select-icon {
+            width: 18px !important;
+            height: 18px !important;
+            fill: var(--brand-crimson) !important;
+        }
+
+        .widget-search-btn {
+            border-radius: 10px !important;
+            padding: 0.8rem 2.2rem !important;
+            font-size: 0.95rem !important;
+            font-weight: 800 !important;
+            cursor: pointer !important;
+            white-space: nowrap !important;
+            height: 48px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        /* Adjust main margins since widget takes up space */
+        .workspace-layout {
+            margin-top: 1rem !important;
+        }
+        
+        .carousel-shade {
+            background: linear-gradient(0deg, rgba(8, 10, 15, 0.9) 0%, rgba(8, 10, 15, 0.4) 60%, rgba(8, 10, 15, 0.2) 100%) !important;
+        }
+        
+        .btn-card-book {
+            background: transparent !important;
+            border: 1px solid var(--brand-crimson) !important;
+            color: var(--brand-crimson) !important;
+            font-weight: 700 !important;
+            border-radius: 6px !important;
+            padding: 0.4rem 1rem !important;
+            cursor: pointer !important;
+            transition: all 0.3s !important;
+        }
+        
+        .btn-card-book:hover {
+            background: var(--brand-crimson) !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 15px rgba(232, 44, 74, 0.3) !important;
+        }
+        
+        .clear-filters {
+            background: rgba(255, 255, 255, 0.03) !important;
+            border: 1px solid var(--border-glow) !important;
+            color: #ffffff !important;
+            border-radius: 8px !important;
+            padding: 0.5rem 1rem !important;
+            cursor: pointer !important;
+            transition: all 0.3s !important;
+            width: 100% !important;
+            font-weight: 600 !important;
+            margin-top: 1rem !important;
+        }
+        
+        .clear-filters:hover {
+            background: var(--brand-crimson) !important;
+            border-color: var(--brand-crimson) !important;
+            box-shadow: 0 4px 12px rgba(232, 44, 74, 0.2) !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 🌐 Dynamic User Toast Notifications container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- 🔐 Authentication Portal Overlay -->
+    <div id="authOverlay" class="auth-overlay">
+        <!-- Left: Hero Panel -->
+        <div class="auth-hero-panel">
+            <div class="auth-hero-noise"></div>
+            <div class="auth-hero-grid"></div>
+            <div class="auth-hero-orb auth-orb-1"></div>
+            <div class="auth-hero-orb auth-orb-2"></div>
+            <div class="auth-hero-content">
+                <div class="auth-brand-logo"><span>book</span>MyDistrict</div>
+                <h1 class="auth-hero-headline">One app.<br>Every experience.</h1>
+                <p class="auth-hero-sub">Movies, dining, live events, activities — all in your city, all in one place.</p>
+                <div class="auth-feature-pills">
+                    <div class="auth-pill">🎬 Movies</div>
+                    <div class="auth-pill">🍽️ Dining</div>
+                    <div class="auth-pill">🎸 Live Events</div>
+                    <div class="auth-pill">🧗 Activities</div>
+                </div>
+                <div class="auth-stats-row">
+                    <div class="auth-stat"><span>50K+</span>Bookings</div>
+                    <div class="auth-stat"><span>3</span>Cities</div>
+                    <div class="auth-stat"><span>4</span>Categories</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Form Panel -->
+        <div class="auth-form-panel">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <div class="auth-logo-small"><span>book</span>MyDistrict</div>
+                    <h2 class="auth-card-title">Welcome back</h2>
+                    <p id="authSubtitle" class="auth-subtitle">Sign in to continue your experience</p>
+                </div>
+
+                <div class="auth-tabs">
+                    <button id="tabLogin" class="auth-tab active" onclick="switchAuthTab('login')">Log In</button>
+                    <button id="tabRegister" class="auth-tab" onclick="switchAuthTab('register')">Register</button>
+                </div>
+
+                <form id="authForm" onsubmit="handleAuthSubmit(event)">
+                    <div class="input-group">
+                        <label for="authUsername">Username</label>
+                        <input type="text" id="authUsername" class="input-field" placeholder="e.g. user123" autocomplete="username" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="authPassword">Password</label>
+                        <input type="password" id="authPassword" class="input-field" placeholder="••••••••" autocomplete="current-password" required>
+                    </div>
+                    <div class="input-group" id="roleGroup" style="display: none;">
+                        <label for="authRole">Account Type</label>
+                        <select id="authRole" class="input-field select-field">
+                            <option value="CUSTOMER">Customer</option>
+                            <option value="VENUE_PARTNER">Venue Partner</option>
+                        </select>
+                    </div>
+                    <button type="submit" id="btnAuthSubmit" class="btn-primary auth-submit-btn">LOG IN →</button>
+                    <button type="button" class="auth-guest-btn" onclick="closeAuthModal()">Browse as Guest</button>
+                </form>
+
+                <div class="auth-hints">
+                    <strong>💡 Demo accounts:</strong><br>
+                    User: <code>user123</code> / <code>password123</code>&nbsp;&nbsp;
+                    Admin: <code>admin</code> / <code>admin123</code>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🌟 Top Navigation Bar -->
+    <header>
+        <div class="navbar">
+            <div class="logo" onclick="switchMainTab('catalog')"><span>book</span>MyDistrict</div>
+            
+            <div class="search-container">
+                <input type="text" id="searchBar" class="search-bar" placeholder="Search movies, cuisines, gigs, arenas, or activities..." oninput="handleFuzzySearch()">
+                <svg class="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            </div>
+
+            <div class="navbar-right">
+                <div class="city-picker">
+                    <select id="citySelect" class="city-select" onchange="handleCityChange()">
+                        <option value="Bengaluru">Bengaluru</option>
+                        <option value="Mumbai">Mumbai</option>
+                        <option value="Chennai">Chennai</option>
+                    </select>
+                </div>
+
+                <div id="walletBadgeContainer" class="wallet-badge" onclick="switchMainTab('wallet')" style="display: none;">
+                    💰 Wallet: <span id="walletValue">₹0</span>
+                </div>
+
+                <button id="btnProfileNav" class="btn-profile" style="display: none;" onclick="switchMainTab('profile')">My Bookings</button>
+                <button id="btnAdminNav" class="btn-profile" style="display: none; border-color: var(--brand-crimson);" onclick="switchMainTab('admin')">Admin Panel</button>
+                <button id="btnLoginNav" class="btn-primary" onclick="showAuthModal()" style="border-radius: 20px; padding: 0.5rem 1.5rem; display: block;">Log In</button>
+                <button id="btnLogoutNav" class="btn-logout" style="display: none;" onclick="handleLogout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="sub-navbar">
+            <div class="sub-navbar-container">
+                <div class="category-tabs">
+                    <div id="catTabAll" class="category-tab active" onclick="switchCategoryFilter('All')">District Hub</div>
+                    <div id="catTabMovies" class="category-tab" onclick="switchCategoryFilter('MOVIE')">Movies</div>
+                    <div id="catTabDining" class="category-tab" onclick="switchCategoryFilter('DINING')">Dining Deals</div>
+                    <div id="catTabEvents" class="category-tab" onclick="switchCategoryFilter('EVENT')">Live Events</div>
+                    <div id="catTabActivities" class="category-tab" onclick="switchCategoryFilter('ACTIVITY')">Activities</div>
+                </div>
+                <div class="nav-shortcuts">
+                    <div class="nav-shortcut" onclick="switchMainTab('favorites')">❤️ Wishlist</div>
+                    <div class="nav-shortcut" onclick="switchMainTab('wallet')">💳 Earn Ledger</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 📂 Main Workspaces -->
+    <main>
+
+        <!-- 🚀 1. Catalog Explorer Workspace -->
+        <section id="sectionCatalog" class="section active">
+            <!-- Dynamic Trending Slideshow -->
+            <div class="carousel-wrapper" id="carouselWrapper">
+                <!-- Loaded Dynamically -->
+            </div>
+
+            <!-- Overlapping Live Nation Style Search/Filter Widget -->
+            <div class="search-overlay-widget">
+                <div class="search-widget-title">Shows & Experiences in Your District</div>
+                <div class="search-widget-row">
+                    <div class="search-select-wrapper">
+                        <svg class="select-icon" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                        <select id="widgetCitySelect" onchange="triggerWidgetFilter()">
+                            <option value="Bengaluru">Bengaluru</option>
+                            <option value="Mumbai">Mumbai</option>
+                            <option value="Chennai">Chennai</option>
+                            <option value="Delhi">Delhi</option>
+                        </select>
+                    </div>
+                    <div class="search-select-wrapper">
+                        <svg class="select-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/></svg>
+                        <select id="widgetCategorySelect" onchange="triggerWidgetFilter()">
+                            <option value="">All Categories</option>
+                            <option value="MOVIE">Movies</option>
+                            <option value="DINING">Dining</option>
+                            <option value="EVENT">Live Events</option>
+                            <option value="PLAY">Theater Plays</option>
+                            <option value="ACTIVITY">Activities</option>
+                        </select>
+                    </div>
+                    <div class="search-select-wrapper" style="flex-grow: 2;">
+                        <svg class="select-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                        <input type="text" id="widgetSearchInput" placeholder="Search shows, artists, movies, dinners..." oninput="triggerWidgetFilter()">
+                    </div>
+                    <button class="widget-search-btn" onclick="triggerWidgetFilter()">Find Experiences</button>
+                </div>
+            </div>
+
+            <div class="workspace-layout">
+                <!-- Sidebar Filters panel -->
+                <div class="filter-panel">
+                    <h3>Refine Catalog</h3>
+                    
+                    <div class="filter-section">
+                        <span class="filter-title">Genres / Cuisines</span>
+                        <div class="filter-pills" id="genreFilters">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <button class="clear-filters" onclick="clearAllFilters()">Clear Filters</button>
+                </div>
+
+                <div class="catalog-container">
+                    <!-- Dynamic Personalized deals -->
+                    <div class="recommended-section" id="recommendedSection">
+                        <div class="recommended-header">
+                            <h2>✨ Recommended <span>For You</span></h2>
+                        </div>
+                        <div class="recommended-grid" id="recommendedGrid">
+                            <!-- Loaded Dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="catalog-header">
+                        <h2 id="catalogHeaderTitle">Now Showing in Bengaluru</h2>
+                    </div>
+
+                    <div class="catalog-grid" id="catalogGrid">
+                        <!-- Loaded Dynamically -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ❤️ 2. Wishlist favorites workspace -->
+        <section id="sectionFavorites" class="section">
+            <h2 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 1.5rem;">My Favorite Picks</h2>
+            <div class="catalog-grid" id="favoritesGrid">
+                <!-- Loaded Dynamically -->
+            </div>
+        </section>
+
+        <!-- 💳 3. Loyalty points wallet ledger workspace -->
+        <section id="sectionWallet" class="section">
+            <h2 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 0.5rem;">Loyalty Wallet</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">Earn points on every booking and burn them during checkout.</p>
+            
+            <div class="chart-box" style="max-width: 500px; margin-bottom: 2rem; background: linear-gradient(135deg, #1b2030 0%, #12151e 100%);">
+                <span class="filter-title" style="color: var(--warning);">Available Balance</span>
+                <h1 style="font-size: 3rem; font-weight: 900; margin: 0.5rem 0;" id="walletLedgerBalance">0 Points</h1>
+                <p style="font-size: 0.85rem; color: var(--text-secondary);">1 Point = ₹1.00 cash credit value</p>
+            </div>
+
+            <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 1rem;">Transaction Ledger</h3>
+            <div class="ledger-feed" id="ledgerHistoryFeed">
+                <!-- Loaded Dynamically -->
+            </div>
+        </section>
+
+        <!-- 🎫 4. My Bookings / Orders History workspace -->
+        <section id="sectionProfile" class="section">
+            <h2 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 0.5rem;">My Bookings</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Manage your active tickets, reservations, and cancellations.</p>
+
+            <table class="orders-table">
+                <thead>
+                    <tr>
+                        <th>Booking ID</th>
+                        <th>Show / Venue Details</th>
+                        <th>Showtime / Time Slot</th>
+                        <th>Quantity</th>
+                        <th>Total Paid</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="bookingsTableBody">
+                    <!-- Loaded Dynamically -->
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 🛡️ 5. Admin Panel & Analytics Dashboard workspace -->
+        <section id="sectionAdmin" class="section">
+            <h2 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 0.5rem;">Administration Dashboard</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">Aggregate sales revenues, manage catalog allocations, and moderate reviews.</p>
+
+            <!-- Revenue bar charts -->
+            <div class="admin-analytics-grid">
+                <div class="chart-box">
+                    <h3>Revenue by Category</h3>
+                    <div class="bar-chart-container" id="categoryRevenueChart">
+                        <!-- CSS bars dynamically injected -->
+                    </div>
+                </div>
+                <div class="chart-box">
+                    <h3>Revenue by City</h3>
+                    <div class="bar-chart-container" id="cityRevenueChart">
+                        <!-- CSS bars dynamically injected -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Management split tabs -->
+            <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 2.5rem;">
+                <!-- Register Catalog Item Form -->
+                <div class="filter-panel">
+                    <h3 style="margin-bottom: 1.5rem;">Add New Catalog Item</h3>
+                    <form id="addCatalogForm" onsubmit="handleAddCatalogSubmit(event)">
+                        <div class="input-group">
+                            <label>Item Title</label>
+                            <input type="text" id="addTitle" class="input-field" placeholder="e.g. IMAX: Spider-Man" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Category</label>
+                            <select id="addCategory" class="input-field select-field" onchange="handleAddCategoryChange()" required>
+                                <option value="MOVIE">Movie</option>
+                                <option value="DINING">Dining Deal</option>
+                                <option value="EVENT">Live Event</option>
+                                <option value="ACTIVITY">Activity Experience</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label id="lblGenre">Genre / Cuisine</label>
+                            <input type="text" id="addGenre" class="input-field" placeholder="e.g. Action" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Base Price (₹)</label>
+                            <input type="number" step="0.01" id="addPrice" class="input-field" placeholder="Base ticket cost" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Select Hosting Venue</label>
+                            <select id="addVenue" class="input-field select-field" required>
+                                <option value="1">Galaxy Cineplex (Bengaluru)</option>
+                                <option value="2">Sector 7 Arena (Mumbai)</option>
+                                <option value="3">The Gourmet Bistro (Bengaluru)</option>
+                                <option value="4">Wonderland Activity Centre (Chennai)</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Showtime Slots (comma separated)</label>
+                            <input type="text" id="addShowtimes" class="input-field" placeholder="e.g. 10:00 AM, 3:00 PM" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Slot Capacity</label>
+                            <input type="number" id="addCapacity" class="input-field" placeholder="Available seats/slots" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Duration (minutes)</label>
+                            <input type="number" id="addDuration" class="input-field" placeholder="e.g. 120" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Short Description</label>
+                            <input type="text" id="addDescription" class="input-field" placeholder="Details of the event...">
+                        </div>
+                        <button type="submit" class="btn-primary">REGISTER ITEM</button>
+                    </form>
+                </div>
+
+                <!-- Global Order & Bookings ledger logs -->
+                <div class="chart-box" style="overflow-x: auto;">
+                    <h3>All Bookings across District</h3>
+                    <table class="orders-table" style="margin-top: 0;">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Details</th>
+                                <th>Item Title</th>
+                                <th>Revenue</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminBookingsTableBody">
+                            <!-- Injected -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 👤 6. Detailed Booking & Checkout Modal mask -->
+    <div id="bookingModal" class="modal-mask">
+        <div class="modal-box">
+            <button class="modal-box-close" onclick="closeBookingModal()">&times;</button>
+            <h3 id="bookingModalTitle">Book Tickets</h3>
+            <div id="bookingModalSubtitle" class="modal-header-desc">Sector 7 Arena • Bandra</div>
+
+            <!-- Modal Flow 1: Slot / Showtime Selection -->
+            <div id="bookingStep1" class="modal-flow-step active">
+                <span class="filter-title" style="margin-bottom: 0.6rem; display: block;">Select Showtime / Time Slot</span>
+                <div class="time-slots-list" id="modalSlotsList">
+                    <!-- Populated dynamically -->
+                </div>
+                
+                <!-- Category Specific visual selectors -->
+                <div id="movieSeatVisualizer" style="display: none;">
+                    <span class="filter-title">Choose Your Seats</span>
+                    <div class="seat-grid-container">
+                        <div class="screen-line"><span>Screen this way</span></div>
+                        <div class="seat-grid" id="modalSeatGrid">
+                            <!-- Grid loaded dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <div id="diningPartyVisualizer" style="display: none;">
+                    <span class="filter-title">Select Party Size</span>
+                    <div class="guests-selector">
+                        <button class="guests-btn selected" onclick="selectDiningGuests(2)">2 Guests</button>
+                        <button class="guests-btn" onclick="selectDiningGuests(4)">4 Guests</button>
+                        <button class="guests-btn" onclick="selectDiningGuests(6)">6 Guests</button>
+                        <button class="guests-btn" onclick="selectDiningGuests(8)">8 Guests</button>
+                    </div>
+                </div>
+
+                <div id="eventTierVisualizer" style="display: none;">
+                    <span class="filter-title">Choose Ticket Category Tier</span>
+                    <div class="tier-picker-grid">
+                        <div class="tier-row selected" onclick="selectEventTier('Silver', 0)" id="tierSilver">
+                            <div class="tier-info">
+                                <h4>Silver Tier Ticket</h4>
+                                <p>Standard access seats in upper rows</p>
+                            </div>
+                            <div class="tier-price" id="tierSilverPrice">₹350</div>
+                        </div>
+                        <div class="tier-row" onclick="selectEventTier('Gold', 100)" id="tierGold">
+                            <div class="tier-info">
+                                <h4>Gold Tier Ticket (+₹100)</h4>
+                                <p>Front rows and premium viewing angle</p>
+                            </div>
+                            <div class="tier-price" id="tierGoldPrice">₹450</div>
+                        </div>
+                        <div class="tier-row" onclick="selectEventTier('Platinum', 250)" id="tierPlatinum">
+                            <div class="tier-info">
+                                <h4>Platinum Box VIP (+₹250)</h4>
+                                <p>Complimentary welcome food and luxury lounges</p>
+                            </div>
+                            <div class="tier-price" id="tierPlatinumPrice">₹600</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-primary" onclick="proceedToPayment()">PROCEED TO SUMMARY</button>
+            </div>
+
+            <!-- Modal Flow 2: Purchase Summary & Split Checkouts -->
+            <div id="bookingStep2" class="modal-flow-step">
+                <span class="filter-title">Booking Summary & Promo codes</span>
+                
+                <div class="checkout-details-box">
+                    <div class="checkout-row">
+                        <span id="summaryItemTitle">Inception</span>
+                        <span id="summarySeatsCount">1 Seat</span>
+                    </div>
+                    <div class="checkout-row">
+                        <span>Showtime / Slot</span>
+                        <span id="summarySlotLabel">7:00 PM</span>
+                    </div>
+                    <div class="checkout-row">
+                        <span>Selected Specifications</span>
+                        <span id="summarySpecifications">-</span>
+                    </div>
+                    <div class="checkout-row" style="color: var(--success); display: none;" id="summaryCouponDiscountRow">
+                        <span>Promo Code Applied</span>
+                        <span id="summaryCouponDiscount">-₹0</span>
+                    </div>
+                    <div class="checkout-row" style="color: var(--warning); display: none;" id="summaryWalletRedeemRow">
+                        <span>Points Redeemed</span>
+                        <span id="summaryWalletRedeem">-₹0</span>
+                    </div>
+                    <div class="checkout-row grand-total">
+                        <span>Grand Total</span>
+                        <span id="summaryGrandTotal">₹0</span>
+                    </div>
+
+                    <!-- Coupons & loyalty redeem switches -->
+                    <div class="coupon-drawer">
+                        <input type="text" id="couponInput" class="input-field" placeholder="Apply coupon (e.g. WELCOME10)" style="padding: 0.5rem; font-size: 0.8rem;">
+                        <button class="btn-card-book" style="padding: 0.5rem 1rem;" onclick="applyPromoCoupon()">Apply</button>
+                    </div>
+                    <div style="margin-top: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="checkbox" id="walletRedeemCheck" onchange="toggleWalletRedemption()" style="width: 16px; height: 16px; cursor: pointer;">
+                        <label for="walletRedeemCheck" style="font-size: 0.85rem; color: var(--text-secondary); cursor: pointer;">Redeem available loyalty points</label>
+                    </div>
+                </div>
+
+                <!-- Split bill simulator -->
+                <div class="split-bill-sim">
+                    <h4>
+                        <svg style="width:16px; height:16px; fill:var(--text-glow);" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 8 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                        Split Cost Simulator (Zomato District Style)
+                    </h4>
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-top: 0.3rem;">
+                        <span style="font-size: 0.8rem; color: var(--text-secondary);">Split with friends:</span>
+                        <input type="number" id="splitCountInput" value="1" min="1" max="10" oninput="calculateSplitValue()" class="input-field" style="width: 60px; padding: 0.3rem; font-size: 0.85rem; text-align: center;">
+                        <span style="font-weight: 700; font-size: 0.90rem;" id="splitPerPersonLabel">₹0 per person</span>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button class="btn-card-book" style="flex:1; padding: 0.8rem;" onclick="closeBookingModal()">Cancel</button>
+                    <button class="btn-primary" style="flex:2; margin-top:0; padding: 0.8rem;" onclick="completeBookingPayment()">SIMULATE PAYMENT & CHECKOUT</button>
+                </div>
+            </div>
+
+            <!-- Modal Flow 3: Final Digital Ticket Receipt -->
+            <div id="bookingStep3" class="modal-flow-step">
+                <div class="ticket-receipt-card">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <span class="carousel-tag" style="background: var(--success);" id="receiptCategory">MOVIE</span>
+                            <h2 style="font-size: 1.4rem; font-weight: 800; margin-top: 0.4rem;" id="receiptTitle">Inception</h2>
+                        </div>
+                        <div style="text-align: right;">
+                            <span style="font-size: 0.75rem; color: var(--text-secondary);">Booking ID</span>
+                            <h3 style="font-size: 1.1rem; font-weight: 900; color: var(--text-glow);" id="receiptBookingID">BK4523</h3>
+                        </div>
+                    </div>
+                    
+                    <div class="ticket-divider"></div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.85rem;">
+                        <div>
+                            <p style="color: var(--text-secondary);">Showtime / Slot</p>
+                            <p style="font-weight: 700;" id="receiptSlot">7:00 PM</p>
+                        </div>
+                        <div>
+                            <p style="color: var(--text-secondary);">Venue Details</p>
+                            <p style="font-weight: 700;" id="receiptVenue">Galaxy Cineplex (Bengaluru)</p>
+                        </div>
+                        <div>
+                            <p style="color: var(--text-secondary);">Specification Details</p>
+                            <p style="font-weight: 700;" id="receiptSeats">Seats: A5, A6</p>
+                        </div>
+                        <div>
+                            <p style="color: var(--text-secondary);">Amount Charged</p>
+                            <p style="font-weight: 700; color: var(--success);" id="receiptPrice">₹440.00</p>
+                        </div>
+                    </div>
+
+                    <div class="ticket-divider"></div>
+
+                    <div style="text-align: center; color: var(--text-secondary); font-size: 0.75rem;">
+                        Scan this ticket voucher at the venue gates. Enjoy your booking!
+                    </div>
+                </div>
+                <button class="btn-primary" style="margin-top: 1.5rem;" onclick="closeBookingModal()">Done & Close</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ✍️ Reviews and ratings Modal overlay -->
+    <div id="reviewModal" class="modal-mask">
+        <div class="modal-box" style="max-width: 450px;">
+            <button class="modal-box-close" onclick="closeReviewModal()">&times;</button>
+            <h3 style="margin-bottom: 0.5rem;">Review Booking</h3>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.5rem;">Share your rating and comments for this catalog item.</p>
+
+            <form onsubmit="handleReviewSubmit(event)">
+                <div class="input-group">
+                    <label>Rating (1 to 5 Stars)</label>
+                    <select id="reviewRatingInput" class="input-field select-field" required>
+                        <option value="5">⭐⭐⭐⭐⭐ (5/5)</option>
+                        <option value="4">⭐⭐⭐⭐ (4/5)</option>
+                        <option value="3">⭐⭐⭐ (3/5)</option>
+                        <option value="2">⭐⭐ (2/5)</option>
+                        <option value="1">⭐ (1/5)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Your Review Comments</label>
+                    <textarea id="reviewCommentInput" class="input-field" rows="4" placeholder="Tell others about your dining, movie, or event experience..." required style="resize: none;"></textarea>
+                </div>
+                <button type="submit" class="btn-primary">SUBMIT REVIEW</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- JS Application Scripts -->
+    <script>
+        // Core session status
+        let sessionUser = null; 
+
+        // Current catalog list, filters, and state
+        let catalogItems = [];
+        let currentCategory = 'All';
+        let currentGenre = 'All';
+        let activeFuzzySearch = '';
+        
+        // Active booking workflow state variables
+        let activeBookingItem = null;
+        let selectedSlot = null;
+        let selectedSeats = [];
+        let selectedDiningGuestsCount = 2;
+        let selectedEventTierName = 'Silver';
+        let selectedEventTierSurcharge = 0;
+        let appliedCoupon = null;
+        let redeemWalletBalance = false;
+        let finalGrandTotalCalculated = 0;
+
+        // Pending review state
+        let reviewItemId = null;
+
+        // Server root URL
+        const API_ROOT = (window.location.origin && window.location.origin !== 'null' && !window.location.origin.startsWith('file://')) 
+            ? window.location.origin 
+            : 'http://localhost:8080';
+
+        // Startup functions
+        window.addEventListener('DOMContentLoaded', () => {
+            // Load catalog content immediately in background
+            loadCatalog();
+
+            // Check session storage
+            const savedUser = sessionStorage.getItem('sessionUser');
+            if (savedUser) {
+                sessionUser = JSON.parse(savedUser);
+                postLoginConfigure(sessionUser);
+            } else {
+                showAuthModal();
+            }
+        });
+
+        function showAuthModal() {
+            document.getElementById('authOverlay').style.display = 'flex';
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authOverlay').style.display = 'none';
+        }
+
+        // ------------------ AUTH PORTAL SERVICES ------------------
+        function switchAuthTab(tab) {
+            document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
+            document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
+            document.getElementById('roleGroup').style.display = (tab === 'register') ? 'block' : 'none';
+            document.getElementById('btnAuthSubmit').innerText = (tab === 'login') ? 'LOG IN' : 'REGISTER';
+            document.getElementById('authSubtitle').innerText = (tab === 'login') 
+                ? 'Welcome to the super-app. Log in to start exploring.' 
+                : 'Create an account to start earning loyalty points!';
+        }
+
+        async function handleAuthSubmit(e) {
+            e.preventDefault();
+            const username = document.getElementById('authUsername').value.trim();
+            const password = document.getElementById('authPassword').value.trim();
+            const role = document.getElementById('authRole').value;
+            const isLogin = document.getElementById('tabLogin').classList.contains('active');
+
+            if (isLogin) {
+                try {
+                    const res = await fetch(`${API_ROOT}/api/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, password })
+                    });
+                    const data = await res.json();
+                    if (!res.ok) {
+                        alert(data.error || 'Login failed');
+                        return;
+                    }
+                    sessionUser = data;
+                    sessionStorage.setItem('sessionUser', JSON.stringify(sessionUser));
+                    postLoginConfigure(sessionUser);
+                    showToast("System Login", `Welcome back, ${sessionUser.username}!`);
+                } catch (err) {
+                    alert('Server communication error: ' + err.message);
+                }
+            } else {
+                try {
+                    const res = await fetch(`${API_ROOT}/api/register`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, password, role })
+                    });
+                    const data = await res.json();
+                    if (!res.ok) {
+                        alert(data.error || 'Registration failed');
+                        return;
+                    }
+                    alert(data.success);
+                    switchAuthTab('login');
+                } catch (err) {
+                    alert('Server registration error: ' + err.message);
+                }
+            }
+        }
+
+        function postLoginConfigure(user) {
+            document.getElementById('authOverlay').style.display = 'none';
+            document.getElementById('btnLoginNav').style.display = 'none';
+            
+            document.getElementById('walletValue').innerText = `₹${user.wallet.toFixed(0)}`;
+            document.getElementById('walletBadgeContainer').style.display = 'flex';
+            document.getElementById('btnProfileNav').style.display = 'block';
+            document.getElementById('btnLogoutNav').style.display = 'block';
+            
+            // Show admin nav button if user is administrator
+            if (user.role === 'ADMIN') {
+                document.getElementById('btnAdminNav').style.display = 'block';
+            } else if (user.role === 'VENUE_PARTNER') {
+                document.getElementById('btnAdminNav').style.display = 'block';
+                document.getElementById('btnAdminNav').innerText = 'Partner Panel';
+            } else {
+                document.getElementById('btnAdminNav').style.display = 'none';
+            }
+
+            // Populate catalog explorer
+            loadCatalog();
+            
+            // Poll for notifications
+            setInterval(pollNotifications, 10000);
+            pollNotifications();
+        }
+
+        function handleLogout() {
+            sessionUser = null;
+            sessionStorage.removeItem('sessionUser');
+            location.reload();
+        }
+
+        // ------------------ WORKSPACE NAVIGATION ------------------
+        function switchMainTab(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+            
+            // Map tab references
+            let targetId = 'sectionCatalog';
+            if (sectionId === 'favorites') targetId = 'sectionFavorites';
+            else if (sectionId === 'wallet') targetId = 'sectionWallet';
+            else if (sectionId === 'profile') targetId = 'sectionProfile';
+            else if (sectionId === 'admin') targetId = 'sectionAdmin';
+
+            document.getElementById(targetId).classList.add('active');
+
+            // Set active category filters if switching to main catalog
+            if (sectionId === 'catalog') {
+                switchCategoryFilter('All');
+            } else if (sectionId === 'favorites') {
+                loadFavorites();
+            } else if (sectionId === 'wallet') {
+                loadWalletHistory();
+            } else if (sectionId === 'profile') {
+                loadBookingsHistory();
+            } else if (sectionId === 'admin') {
+                loadAdminAnalytics();
+                loadAdminBookingsLog();
+            }
+        }
+
+        // ------------------ CATALOG FETCH & FILTERS ------------------
+        async function loadCatalog() {
+            const city = document.getElementById('citySelect').value;
+            const user_id = sessionUser ? sessionUser.id : -1;
+            
+            let url = `${API_ROOT}/api/catalog?city=${encodeURIComponent(city)}&category=${currentCategory}&genre=${currentGenre}&search=${encodeURIComponent(activeFuzzySearch)}&user_id=${user_id}`;
+            
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                catalogItems = data;
+                
+                populateCatalogGrid();
+                populateCarouselBanner();
+                populateGenreFilterPills();
+                
+                // Sync widget options
+                const widgetCity = document.getElementById('widgetCitySelect');
+                const widgetCat = document.getElementById('widgetCategorySelect');
+                const widgetSearch = document.getElementById('widgetSearchInput');
+                if (widgetCity) widgetCity.value = city;
+                if (widgetCat) widgetCat.value = currentCategory === 'All' ? '' : currentCategory;
+                if (widgetSearch) widgetSearch.value = activeFuzzySearch;
+
+                // Fetch recommendations if customer
+                if (sessionUser && sessionUser.role === 'CUSTOMER') {
+                    loadRecommendedForYou();
+                }
+            } catch (err) {
+                console.error("Failed to fetch catalog items", err);
+            }
+        }
+
+        // Handle filter trigger from Live Nation style search overlay widget
+        function triggerWidgetFilter() {
+            const city = document.getElementById('widgetCitySelect').value;
+            // Sync to header city selector
+            document.getElementById('citySelect').value = city;
+            
+            const category = document.getElementById('widgetCategorySelect').value;
+            // Sync category global
+            currentCategory = category ? category : 'All';
+            
+            // Sync search text
+            activeFuzzySearch = document.getElementById('widgetSearchInput').value.trim();
+            
+            // Highlight category navigation tabs
+            const tabs = document.querySelectorAll('.category-tab');
+            tabs.forEach(tab => {
+                const text = tab.innerText.toUpperCase();
+                if (text === currentCategory || (currentCategory === 'All' && text === 'ALL DISTRICT')) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+
+            loadCatalog();
+        }
+
+        function populateCatalogGrid() {
+            const grid = document.getElementById('catalogGrid');
+            grid.innerHTML = '';
+            
+            const city = document.getElementById('citySelect').value;
+            document.getElementById('catalogHeaderTitle').innerText = `${currentCategory === 'All' ? 'District Hub' : currentCategory + 's'} in ${city}`;
+
+            if (catalogItems.length === 0) {
+                grid.innerHTML = `<div style="grid-column: 1/-1; padding: 3rem; text-align: center; color: var(--text-secondary);">No items match the selected category and filter rules.</div>`;
+                return;
+            }
+
+            catalogItems.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'catalog-card';
+                card.onclick = (e) => {
+                    // Check if they clicked heart icon
+                    if (e.target.closest('.btn-wishlist')) return;
+                    openBookingModal(item);
+                };
+
+                const ratingHtml = item.avgRating > 0 
+                    ? `<div class="card-rating-badge"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>${item.avgRating.toFixed(1)} (${item.reviewCount})</div>`
+                    : '';
+
+                const specTag = item.isSpecial ? `<span class="card-tag" style="background:var(--brand-crimson);">${item.format}</span>` : `<span class="card-tag" style="background:#1e293b;">${item.category}</span>`;
+
+                card.innerHTML = `
+                    <div class="card-banner">
+                        <div class="card-banner-fallback">
+                            <h3>${escapeHTML(item.title)}</h3>
+                            <p>${escapeHTML(item.venueName)}</p>
+                        </div>
+                        ${ratingHtml}
+                        ${specTag}
+                        <button class="btn-wishlist ${item.wishlisted ? 'active' : ''}" onclick="toggleWishlistItem(${item.id})">
+                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        </button>
+                    </div>
+                    <div class="card-info">
+                        <div class="card-title">${escapeHTML(item.title)}</div>
+                        <div class="card-venue">${escapeHTML(item.venueName)}</div>
+                        <div class="card-genre">${escapeHTML(item.genre_or_cuisine)} • ${item.durationMinutes} mins</div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="card-price">₹${item.base_price.toFixed(0)}<span>${item.category === 'DINING' ? '/table' : '/ticket'}</span></div>
+                        <button class="btn-card-book" onclick="openBookingModalById(${item.id}); event.stopPropagation();">Reserve</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function populateCarouselBanner() {
+            const wrapper = document.getElementById('carouselWrapper');
+            wrapper.innerHTML = '';
+
+            // Find top 3 items
+            const carouselItems = catalogItems.slice(0, 3);
+            if (carouselItems.length === 0) {
+                wrapper.style.display = 'none';
+                return;
+            }
+            wrapper.style.display = 'block';
+
+            carouselItems.forEach((item, idx) => {
+                const slide = document.createElement('div');
+                slide.className = `carousel-slide ${idx === 0 ? 'active' : ''}`;
+                
+                let bgUrl = 'https://images.unsplash.com/photo-1506157786151-b8491531f063?q=80&w=1200'; // Event/Play/Default
+                if (item.category === 'MOVIE') {
+                    bgUrl = 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1200'; // Cinema theater
+                } else if (item.category === 'DINING') {
+                    bgUrl = 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1200'; // Restaurant dining
+                } else if (item.category === 'ACTIVITY') {
+                    bgUrl = 'https://images.unsplash.com/photo-1528605248644-14dd04022da1?q=80&w=1200'; // Fun experience/workshop
+                }
+                
+                slide.style.backgroundImage = `url('${bgUrl}')`;
+                
+                const avgHtml = item.avgRating > 0 ? `<div class="carousel-rating">⭐ ${item.avgRating.toFixed(1)}</div>` : '';
+                
+                slide.innerHTML = `
+                    <div class="carousel-shade"></div>
+                    <div class="carousel-body">
+                        <span class="carousel-tag">${item.category}</span>
+                        <h1 class="carousel-headline">${escapeHTML(item.title)}</h1>
+                        <div class="carousel-meta">
+                            <span>${escapeHTML(item.genre_or_cuisine)}</span>
+                            <span>•</span>
+                            <span>${item.durationMinutes} mins</span>
+                            ${avgHtml}
+                        </div>
+                        <p class="carousel-desc">${escapeHTML(item.description || 'Experience the best entertainment curated near you in this slot.')}</p>
+                        <button class="carousel-btn" onclick="openBookingModalById(${item.id})">Reserve Now</button>
+                    </div>
+                `;
+                wrapper.appendChild(slide);
+            });
+
+            // Start auto-scroll
+            let activeIdx = 0;
+            const slides = wrapper.querySelectorAll('.carousel-slide');
+            if (slides.length > 1) {
+                clearInterval(window.carouselInterval);
+                window.carouselInterval = setInterval(() => {
+                    slides[activeIdx].classList.remove('active');
+                    activeIdx = (activeIdx + 1) % slides.length;
+                    slides[activeIdx].classList.add('active');
+                }, 6000);
+            }
+        }
+
+        function populateGenreFilterPills() {
+            const container = document.getElementById('genreFilters');
+            container.innerHTML = '';
+
+            // Extract unique genres
+            const genres = ['All'];
+            catalogItems.forEach(item => {
+                if (item.genre_or_cuisine && !genres.includes(item.genre_or_cuisine)) {
+                    genres.push(item.genre_or_cuisine);
+                }
+            });
+
+            genres.forEach(g => {
+                const pill = document.createElement('button');
+                pill.className = `filter-pill ${currentGenre === g ? 'active' : ''}`;
+                pill.innerText = g;
+                pill.onclick = () => {
+                    currentGenre = g;
+                    loadCatalog();
+                };
+                container.appendChild(pill);
+            });
+        }
+
+        async function loadRecommendedForYou() {
+            try {
+                const res = await fetch(`${API_ROOT}/api/catalog/recommended?user_id=${sessionUser.id}`);
+                const data = await res.json();
+                
+                const section = document.getElementById('recommendedSection');
+                const grid = document.getElementById('recommendedGrid');
+                grid.innerHTML = '';
+
+                if (data.length > 0) {
+                    section.style.display = 'block';
+                    data.forEach(item => {
+                        const card = document.createElement('div');
+                        card.className = 'catalog-card';
+                        card.onclick = () => openBookingModal(item);
+                        card.innerHTML = `
+                            <div class="card-banner" style="padding-top:50%;">
+                                <div class="card-banner-fallback" style="background:linear-gradient(135deg,#0f172a 0%,#31102f 100%);">
+                                    <h3>${escapeHTML(item.title)}</h3>
+                                </div>
+                                <span class="card-tag" style="background:var(--warning); color:#000;">${item.category}</span>
+                            </div>
+                            <div class="card-info" style="padding:0.8rem;">
+                                <div class="card-title" style="font-size:0.9rem;">${escapeHTML(item.title)}</div>
+                                <div class="card-venue" style="font-size:0.75rem;">${escapeHTML(item.venueName)}</div>
+                            </div>
+                        `;
+                        grid.appendChild(card);
+                    });
+                } else {
+                    section.style.display = 'none';
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function switchCategoryFilter(category) {
+            currentCategory = category;
+            currentGenre = 'All';
+            
+            // Set active classes
+            document.querySelectorAll('.category-tab').forEach(tab => tab.classList.remove('active'));
+            if (category === 'All') document.getElementById('catTabAll').classList.add('active');
+            else if (category === 'MOVIE') document.getElementById('catTabMovies').classList.add('active');
+            else if (category === 'DINING') document.getElementById('catTabDining').classList.add('active');
+            else if (category === 'EVENT') document.getElementById('catTabEvents').classList.add('active');
+            else if (category === 'ACTIVITY') document.getElementById('catTabActivities').classList.add('active');
+
+            loadCatalog();
+        }
+
+        function handleCityChange() {
+            loadCatalog();
+        }
+
+        function handleFuzzySearch() {
+            activeFuzzySearch = document.getElementById('searchBar').value;
+            loadCatalog();
+        }
+
+        function clearAllFilters() {
+            currentGenre = 'All';
+            activeFuzzySearch = '';
+            document.getElementById('searchBar').value = '';
+            loadCatalog();
+        }
+
+        // ------------------ FAVORITES / WISHLIST SERVICES ------------------
+        async function toggleWishlistItem(itemId) {
+            if (!sessionUser) {
+                showToast("Authentication Required", "Please log in to manage your wishlist.");
+                showAuthModal();
+                return;
+            }
+            try {
+                const res = await fetch(`${API_ROOT}/api/wishlist/toggle`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: sessionUser.id, catalogItemId: itemId })
+                });
+                const data = await res.json();
+                loadCatalog(); // reload catalog to reflect changes
+                showToast("Wishlist Feed", data.status === 'added' ? "Added item to favorites!" : "Removed item from favorites.");
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function loadFavorites() {
+            try {
+                const res = await fetch(`${API_ROOT}/api/wishlist?user_id=${sessionUser.id}`);
+                const data = await res.json();
+                
+                const grid = document.getElementById('favoritesGrid');
+                grid.innerHTML = '';
+
+                if (data.length === 0) {
+                    grid.innerHTML = `<div style="grid-column:1/-1; padding:3rem; text-align:center; color:var(--text-secondary);">Your wishlist is empty. Add heart clicks to catalog cards!</div>`;
+                    return;
+                }
+
+                data.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'catalog-card';
+                    card.onclick = () => openBookingModal(item);
+                    card.innerHTML = `
+                        <div class="card-banner">
+                            <div class="card-banner-fallback">
+                                <h3>${escapeHTML(item.title)}</h3>
+                            </div>
+                            <span class="card-tag">${item.category}</span>
+                        </div>
+                        <div class="card-info">
+                            <div class="card-title">${escapeHTML(item.title)}</div>
+                            <div class="card-venue">${escapeHTML(item.venueName)}</div>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // ------------------ WALLET LEDGER LOG SERVICES ------------------
+        async function loadWalletHistory() {
+            try {
+                const res = await fetch(`${API_ROOT}/api/wallet/history?user_id=${sessionUser.id}`);
+                const data = await res.json();
+                
+                const feed = document.getElementById('ledgerHistoryFeed');
+                feed.innerHTML = '';
+
+                let balance = 0;
+                data.forEach(tx => {
+                    balance += tx.amount;
+                    const row = document.createElement('div');
+                    row.className = 'ledger-row';
+                    
+                    const isEarn = tx.amount > 0;
+                    row.innerHTML = `
+                        <div class="ledger-info">
+                            <h4>${tx.type === 'EARN' ? 'Reward Points Accrued' : 'Points Spent on Booking'}</h4>
+                            <p>${tx.date}</p>
+                        </div>
+                        <div class="ledger-amount ${isEarn ? 'earn' : 'burn'}">${isEarn ? '+' : ''}${tx.amount.toFixed(0)} pts</div>
+                    `;
+                    feed.appendChild(row);
+                });
+
+                document.getElementById('walletLedgerBalance').innerText = `${balance.toFixed(0)} Points`;
+                document.getElementById('walletValue').innerText = `₹${balance.toFixed(0)}`;
+                sessionUser.wallet = balance;
+                sessionStorage.setItem('sessionUser', JSON.stringify(sessionUser));
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // ------------------ MODAL BOOKING WORKFLOW ------------------
+        function openBookingModal(item) {
+            if (!sessionUser) {
+                showToast("Login Required", "Please log in to book tickets.");
+                showAuthModal();
+                return;
+            }
+            activeBookingItem = item;
+            selectedSlot = null;
+            selectedSeats = [];
+            selectedDiningGuestsCount = 2;
+            selectedEventTierName = 'Silver';
+            selectedEventTierSurcharge = 0;
+            appliedCoupon = null;
+            redeemWalletBalance = false;
+            document.getElementById('walletRedeemCheck').checked = false;
+            document.getElementById('couponInput').value = '';
+            document.getElementById('splitCountInput').value = 1;
+
+            // Update title text
+            document.getElementById('bookingModalTitle').innerText = `Reserve ${item.title}`;
+            document.getElementById('bookingModalSubtitle').innerText = `${item.venueName} • ${item.venueCity}`;
+
+            // Reset modal flow
+            document.querySelectorAll('.modal-flow-step').forEach(step => step.classList.remove('active'));
+            document.getElementById('bookingStep1').classList.add('active');
+
+            // Render Time slots
+            const slotsContainer = document.getElementById('modalSlotsList');
+            slotsContainer.innerHTML = '';
+            item.showtimes.forEach(st => {
+                const pill = document.createElement('button');
+                pill.className = 'time-slot-pill';
+                pill.innerText = st;
+                pill.onclick = () => {
+                    slotsContainer.querySelectorAll('.time-slot-pill').forEach(p => p.classList.remove('selected'));
+                    pill.classList.add('selected');
+                    selectedSlot = st;
+                };
+                slotsContainer.appendChild(pill);
+            });
+
+            // Handle Category Specific Visualizations
+            document.getElementById('movieSeatVisualizer').style.display = 'none';
+            document.getElementById('diningPartyVisualizer').style.display = 'none';
+            document.getElementById('eventTierVisualizer').style.display = 'none';
+
+            if (item.category === 'MOVIE' || item.category === 'PLAY') {
+                document.getElementById('movieSeatVisualizer').style.display = 'block';
+                renderMovieSeatMap();
+            } else if (item.category === 'DINING') {
+                document.getElementById('diningPartyVisualizer').style.display = 'block';
+            } else if (item.category === 'EVENT') {
+                document.getElementById('eventTierVisualizer').style.display = 'block';
+                
+                // Update event tier pricing based on item base price
+                document.getElementById('tierSilverPrice').innerText = `₹${item.base_price.toFixed(0)}`;
+                document.getElementById('tierGoldPrice').innerText = `₹${(item.base_price + 100).toFixed(0)}`;
+                document.getElementById('tierPlatinumPrice').innerText = `₹${(item.base_price + 250).toFixed(0)}`;
+            }
+
+            // Show Mask
+            document.getElementById('bookingModal').style.display = 'flex';
+        }
+
+        function closeBookingModal() {
+            document.getElementById('bookingModal').style.display = 'none';
+            loadCatalog(); // reload available capacities
+        }
+
+        function openBookingModalById(id) {
+            const item = catalogItems.find(x => x.id === id);
+            if (item) {
+                openBookingModal(item);
+            }
+        }
+
+        // Seating chart generator
+        function renderMovieSeatMap() {
+            const grid = document.getElementById('modalSeatGrid');
+            grid.innerHTML = '';
+            
+            const rows = ['A', 'B', 'C', 'D', 'E'];
+            rows.forEach(r => {
+                for (let i = 1; i <= 10; i++) {
+                    const seatId = `${r}${i}`;
+                    const seat = document.createElement('div');
+                    seat.className = 'seat-unit';
+                    seat.innerText = seatId;
+                    seat.onclick = () => {
+                        seat.classList.toggle('selected');
+                        if (seat.classList.contains('selected')) {
+                            selectedSeats.push(seatId);
+                        } else {
+                            selectedSeats = selectedSeats.filter(s => s !== seatId);
+                        }
+                    };
+                    grid.appendChild(seat);
+                }
+            });
+        }
+
+        function selectDiningGuests(count) {
+            selectedDiningGuestsCount = count;
+            document.querySelectorAll('.guests-btn').forEach(btn => btn.classList.remove('selected'));
+            event.target.classList.add('selected');
+        }
+
+        function selectEventTier(tier, surcharge) {
+            selectedEventTierName = tier;
+            selectedEventTierSurcharge = surcharge;
+            document.querySelectorAll('.tier-row').forEach(row => row.classList.remove('selected'));
+            
+            if (tier === 'Silver') document.getElementById('tierSilver').classList.add('selected');
+            else if (tier === 'Gold') document.getElementById('tierGold').classList.add('selected');
+            else if (tier === 'Platinum') document.getElementById('tierPlatinum').classList.add('selected');
+        }
+
+        // Summary step transition
+        async function proceedToPayment() {
+            if (!selectedSlot) {
+                alert('Please select a time slot.');
+                return;
+            }
+
+            let seatsCount = 1;
+            let specs = '-';
+
+            if (activeBookingItem.category === 'MOVIE' || activeBookingItem.category === 'PLAY') {
+                if (selectedSeats.length === 0) {
+                    alert('Please select at least one seat.');
+                    return;
+                }
+                seatsCount = selectedSeats.length;
+                specs = `Seats: ${selectedSeats.join(', ')}`;
+            } else if (activeBookingItem.category === 'DINING') {
+                seatsCount = 1; // 1 table reservation
+                specs = `Party of ${selectedDiningGuestsCount} guests`;
+            } else if (activeBookingItem.category === 'EVENT') {
+                seatsCount = 1;
+                specs = `${selectedEventTierName} Tier Premium Ticket`;
+            } else if (activeBookingItem.category === 'ACTIVITY') {
+                seatsCount = 1;
+                specs = `Activity Session booking`;
+            }
+
+            // Perform dynamic pricing, checking coupons, surcharges, and points
+            let rawCost = activeBookingItem.base_price;
+            if (activeBookingItem.category === 'MOVIE' && activeBookingItem.isSpecial) {
+                rawCost += activeBookingItem.surcharge;
+            }
+            if (activeBookingItem.category === 'EVENT') {
+                rawCost += selectedEventTierSurcharge;
+            }
+
+            let grandTotal = rawCost * seatsCount;
+
+            // Apply weekend surges if Saturday/Sunday evening
+            const today = new Date();
+            const dayName = today.toLocaleDateString('en-US', { weekday: 'long' });
+            // Simulate weekend surge locally for client summary check (matched on slots on DB)
+            if (activeBookingItem.category === 'MOVIE' && (dayName === 'Saturday' || dayName === 'Sunday') && selectedSlot.includes("7:")) {
+                grandTotal *= 1.25;
+                specs += ' [Weekend Evening Surge Applied]';
+            }
+
+            finalGrandTotalCalculated = grandTotal;
+
+            // Set content details in Summary step
+            document.getElementById('summaryItemTitle').innerText = activeBookingItem.title;
+            document.getElementById('summarySeatsCount').innerText = `${seatsCount} ${activeBookingItem.category === 'DINING' ? 'Table' : 'Ticket(s)'}`;
+            document.getElementById('summarySlotLabel').innerText = selectedSlot;
+            document.getElementById('summarySpecifications').innerText = specs;
+            document.getElementById('summaryGrandTotal').innerText = `₹${grandTotal.toFixed(2)}`;
+
+            // Reset coupon view
+            document.getElementById('summaryCouponDiscountRow').style.display = 'none';
+            document.getElementById('summaryWalletRedeemRow').style.display = 'none';
+
+            // Transition
+            document.getElementById('bookingStep1').classList.remove('active');
+            document.getElementById('bookingStep2').classList.add('active');
+            
+            calculateSplitValue();
+        }
+
+        async function applyPromoCoupon() {
+            const code = document.getElementById('couponInput').value.trim().toUpperCase();
+            if (code.isEmpty()) return;
+
+            // Simple local discount check for UI reactivity before checkout confirm
+            let discount = 0.0;
+            if (code === 'WELCOME10') {
+                discount = finalGrandTotalCalculated * 0.1;
+                appliedCoupon = { code, discount };
+            } else if (code === 'DISTRICT50') {
+                discount = Math.min(50.0, finalGrandTotalCalculated);
+                appliedCoupon = { code, discount };
+            } else {
+                alert('Invalid or expired coupon code.');
+                return;
+            }
+
+            document.getElementById('summaryCouponDiscount').innerText = `-₹${discount.toFixed(2)}`;
+            document.getElementById('summaryCouponDiscountRow').style.display = 'flex';
+            
+            updateGrandSummaryTotal();
+        }
+
+        function toggleWalletRedemption() {
+            redeemWalletBalance = document.getElementById('walletRedeemCheck').checked;
+            updateGrandSummaryTotal();
+        }
+
+        function updateGrandSummaryTotal() {
+            let total = finalGrandTotalCalculated;
+            
+            if (appliedCoupon) {
+                total -= appliedCoupon.discount;
+            }
+
+            if (redeemWalletBalance) {
+                const pointsToBurn = Math.min(sessionUser.wallet, total);
+                document.getElementById('summaryWalletRedeem').innerText = `-₹${pointsToBurn.toFixed(0)}`;
+                document.getElementById('summaryWalletRedeemRow').style.display = 'flex';
+                total -= pointsToBurn;
+            } else {
+                document.getElementById('summaryWalletRedeemRow').style.display = 'none';
+            }
+
+            if (total < 0) total = 0;
+            document.getElementById('summaryGrandTotal').innerText = `₹${total.toFixed(2)}`;
+            calculateSplitValue();
+        }
+
+        function calculateSplitValue() {
+            const splits = parseInt(document.getElementById('splitCountInput').value) || 1;
+            let currentTotal = finalGrandTotalCalculated;
+            
+            if (appliedCoupon) currentTotal -= appliedCoupon.discount;
+            if (redeemWalletBalance) currentTotal -= Math.min(sessionUser.wallet, currentTotal);
+            if (currentTotal < 0) currentTotal = 0;
+
+            const perPerson = currentTotal / splits;
+            document.getElementById('splitPerPersonLabel').innerText = `₹${perPerson.toFixed(2)} per person`;
+        }
+
+        // Complete Checkout & payment confirm
+        async function completeBookingPayment() {
+            let seatsCount = 1;
+            let specs = '-';
+
+            if (activeBookingItem.category === 'MOVIE' || activeBookingItem.category === 'PLAY') {
+                seatsCount = selectedSeats.length;
+                specs = `${sessionUser.username} (Seats: ${selectedSeats.join(', ')})`;
+            } else if (activeBookingItem.category === 'DINING') {
+                seatsCount = 1;
+                specs = `${sessionUser.username} (Party size: ${selectedDiningGuestsCount})`;
+            } else if (activeBookingItem.category === 'EVENT') {
+                seatsCount = 1;
+                specs = `${sessionUser.username} (${selectedEventTierName} Tier)`;
+            } else if (activeBookingItem.category === 'ACTIVITY') {
+                seatsCount = 1;
+                specs = `${sessionUser.username} (Activity Session)`;
+            }
+
+            const couponCode = appliedCoupon ? appliedCoupon.code : "";
+            
+            // 1. POST book request (initializes pending states)
+            try {
+                const res = await fetch(`${API_ROOT}/api/book`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: sessionUser.id,
+                        catalogItemId: activeBookingItem.id,
+                        showtime: selectedSlot,
+                        seats: seatsCount,
+                        couponCode: couponCode,
+                        details: specs,
+                        redeemWallet: redeemWalletBalance
+                    })
+                });
+
+                const bookingData = await res.json();
+                if (!res.ok) {
+                    alert(bookingData.error || 'Booking reservation failed');
+                    return;
+                }
+
+                // 2. Confirm Payment gateway simulation success
+                const confirmRes = await fetch(`${API_ROOT}/api/payment/confirm`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        bookingID: bookingData.bookingID,
+                        success: true // simulate gateway success
+                    })
+                });
+
+                const confirmData = await confirmRes.json();
+                if (!confirmRes.ok) {
+                    alert(confirmData.error || 'Payment gateway failed');
+                    return;
+                }
+
+                // Render Final digital ticket receipt
+                document.getElementById('receiptCategory').innerText = activeBookingItem.category;
+                document.getElementById('receiptTitle').innerText = activeBookingItem.title;
+                document.getElementById('receiptBookingID').innerText = bookingData.bookingID;
+                document.getElementById('receiptSlot').innerText = selectedSlot;
+                document.getElementById('receiptVenue').innerText = `${activeBookingItem.venueName} (${activeBookingItem.venueCity})`;
+                document.getElementById('receiptSeats').innerText = specs;
+                document.getElementById('receiptPrice').innerText = `₹${bookingData.cost.toFixed(2)}`;
+
+                // Transition to Ticket step
+                document.getElementById('bookingStep2').classList.remove('active');
+                document.getElementById('bookingStep3').classList.add('active');
+
+                showToast("Booking Successful", `Reserved tickets for ${activeBookingItem.title}.`);
+            } catch (err) {
+                alert('Connection failure: ' + err.message);
+            }
+        }
+
+        // ------------------ RATINGS & REVIEWS MODULE ------------------
+        function openReviewModal(catalogItemId) {
+            reviewItemId = catalogItemId;
+            document.getElementById('reviewCommentInput').value = '';
+            document.getElementById('reviewRatingInput').value = 5;
+            document.getElementById('reviewModal').style.display = 'flex';
+        }
+
+        function closeReviewModal() {
+            document.getElementById('reviewModal').style.display = 'none';
+        }
+
+        async function handleReviewSubmit(e) {
+            e.preventDefault();
+            const rating = parseInt(document.getElementById('reviewRatingInput').value);
+            const comment = document.getElementById('reviewCommentInput').value.trim();
+
+            try {
+                const res = await fetch(`${API_ROOT}/api/reviews/add`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: sessionUser.id,
+                        catalogItemId: reviewItemId,
+                        rating: rating,
+                        comment: comment
+                    })
+                });
+
+                const data = await res.json();
+                if (!res.ok) {
+                    alert(data.error || 'Failed to submit review');
+                    return;
+                }
+
+                showToast("Review Moderation", "Your rating and feedback has been published.");
+                closeReviewModal();
+                loadBookingsHistory();
+            } catch (err) {
+                alert('Review failure: ' + err.message);
+            }
+        }
+
+        // ------------------ PROFILE & ORDERS LOG ------------------
+        async function loadBookingsHistory() {
+            try {
+                const res = await fetch(`${API_ROOT}/api/bookings?user_id=${sessionUser.id}&role=${sessionUser.role}`);
+                const data = await res.json();
+
+                const tbody = document.getElementById('bookingsTableBody');
+                tbody.innerHTML = '';
+
+                if (data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-secondary); padding: 3rem;">No bookings found for the current session.</td></tr>`;
+                    return;
+                }
+
+                data.forEach(b => {
+                    const tr = document.createElement('tr');
+                    
+                    // Actions column
+                    let actionsHtml = '';
+                    if (!b.isCancelled) {
+                        actionsHtml = `<button class="btn-card-book" style="border-color:var(--brand-crimson); color:var(--brand-crimson); font-size:0.75rem; padding:0.25rem 0.5rem;" onclick="cancelBookingItem('${b.bookingID}')">Cancel</button>`;
+                        
+                        // Add review option if customer
+                        if (sessionUser.role === 'CUSTOMER') {
+                            actionsHtml += ` <button class="btn-card-book" style="font-size:0.75rem; padding:0.25rem 0.5rem; margin-top:0.3rem;" onclick="openReviewModal(${(catalogItems.find(c => c.title === b.movieTitle) || {id: 1}).id})">Review</button>`;
+                        }
+                    } else {
+                        actionsHtml = '<span style="color:var(--text-secondary); font-size:0.8rem;">None</span>';
+                    }
+
+                    tr.innerHTML = `
+                        <td style="font-weight:700; color:var(--text-glow);">${b.bookingID}</td>
+                        <td>
+                            <strong style="color:#fff;">${escapeHTML(b.movieTitle)}</strong><br>
+                            <span style="font-size:0.75rem; color:var(--text-secondary);">${escapeHTML(b.customerName)}</span>
+                        </td>
+                        <td>${b.showtime}</td>
+                        <td>${b.seats}</td>
+                        <td style="font-weight:700;">₹${b.totalCost.toFixed(2)}</td>
+                        <td><span class="badge-status ${b.isCancelled ? 'cancelled' : 'confirmed'}">${b.isCancelled ? 'CANCELLED' : 'CONFIRMED'}</span></td>
+                        <td>${actionsHtml}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function cancelBookingItem(bookingID) {
+            if (!confirm(`Are you sure you want to cancel booking ${bookingID}?`)) return;
+
+            try {
+                const res = await fetch(`${API_ROOT}/api/cancel`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ bookingID })
+                });
+
+                const data = await res.json();
+                if (!res.ok) {
+                    alert(data.error || 'Failed to cancel booking');
+                    return;
+                }
+
+                showToast("Booking Cancellation", `Cancelled booking ${bookingID}. Restored seat reservations.`);
+                loadBookingsHistory();
+            } catch (err) {
+                alert('Cancellation connection error: ' + err.message);
+            }
+        }
+
+        // ------------------ ADMIN & ANALYTICS DASHBOARDS ------------------
+        async function loadAdminAnalytics() {
+            try {
+                const res = await fetch(`${API_ROOT}/api/admin/analytics`, {
+                    headers: { 'Authorization': 'admin123' } // simple admin check header
+                });
+                const data = await res.json();
+
+                // Category Revenue Chart
+                const catChart = document.getElementById('categoryRevenueChart');
+                catChart.innerHTML = '';
+                
+                const catMax = Math.max(...data.revenueByCategory.map(c => c.revenue), 1);
+                data.revenueByCategory.forEach(c => {
+                    const row = document.createElement('div');
+                    row.className = 'chart-bar-row';
+                    const pct = (c.revenue / catMax) * 100;
+                    row.innerHTML = `
+                        <div class="chart-label-row">
+                            <span>${c.category}</span>
+                            <span>₹${c.revenue.toFixed(0)}</span>
+                        </div>
+                        <div class="chart-bar-bg">
+                            <div class="chart-bar-fill" style="width: ${pct}%"></div>
+                        </div>
+                    `;
+                    catChart.appendChild(row);
+                });
+
+                // City Revenue Chart
+                const cityChart = document.getElementById('cityRevenueChart');
+                cityChart.innerHTML = '';
+                
+                const cityMax = Math.max(...data.revenueByCity.map(c => c.revenue), 1);
+                data.revenueByCity.forEach(c => {
+                    const row = document.createElement('div');
+                    row.className = 'chart-bar-row';
+                    const pct = (c.revenue / cityMax) * 100;
+                    row.innerHTML = `
+                        <div class="chart-label-row">
+                            <span>${c.city}</span>
+                            <span>₹${c.revenue.toFixed(0)}</span>
+                        </div>
+                        <div class="chart-bar-bg">
+                            <div class="chart-bar-fill" style="width: ${pct}%"></div>
+                        </div>
+                    `;
+                    cityChart.appendChild(row);
+                });
+
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function loadAdminBookingsLog() {
+            try {
+                const res = await fetch(`${API_ROOT}/api/bookings?user_id=1&role=ADMIN`);
+                const data = await res.json();
+
+                const tbody = document.getElementById('adminBookingsTableBody');
+                tbody.innerHTML = '';
+
+                data.forEach(b => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td style="font-weight:700; color:var(--text-glow);">${b.bookingID}</td>
+                        <td style="font-size:0.75rem;">${escapeHTML(b.customerName)}</td>
+                        <td><strong>${escapeHTML(b.movieTitle)}</strong></td>
+                        <td style="font-weight:700;">₹${b.totalCost.toFixed(2)}</td>
+                        <td><span class="badge-status ${b.isCancelled ? 'cancelled' : 'confirmed'}">${b.isCancelled ? 'CANCELLED' : 'CONFIRMED'}</span></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function handleAddCategoryChange() {
+            const cat = document.getElementById('addCategory').value;
+            document.getElementById('lblGenre').innerText = (cat === 'DINING') ? 'Cuisine Type' : 'Genre';
+            document.getElementById('addGenre').placeholder = (cat === 'DINING') ? 'e.g. Italian, Chinese' : 'e.g. Action, Comedy';
+        }
+
+        async function handleAddCatalogSubmit(e) {
+            e.preventDefault();
+            const title = document.getElementById('addTitle').value.trim();
+            const category = document.getElementById('addCategory').value;
+            const genre = document.getElementById('addGenre').value.trim();
+            const price = parseFloat(document.getElementById('addPrice').value);
+            const venueId = parseInt(document.getElementById('addVenue').value);
+            const showtimes = document.getElementById('addShowtimes').value.trim();
+            const capacity = parseInt(document.getElementById('addCapacity').value);
+            const durationMinutes = parseInt(document.getElementById('addDuration').value);
+            const description = document.getElementById('addDescription').value.trim();
+
+            const authHeader = (sessionUser.role === 'ADMIN') ? 'admin123' : `partner_${sessionUser.id}`;
+
+            try {
+                const res = await fetch(`${API_ROOT}/api/catalog/add`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': authHeader
+                    },
+                    body: JSON.stringify({
+                        title, category, genre, price, venueId, showtimes, capacity, durationMinutes, description
+                    })
+                });
+
+                const data = await res.json();
+                if (!res.ok) {
+                    alert(data.error || 'Failed to add item');
+                    return;
+                }
+
+                showToast("Admin Panel", "New catalog listing has been initialized successfully!");
+                document.getElementById('addCatalogForm').reset();
+                loadCatalog();
+                loadAdminBookingsLog();
+            } catch (err) {
+                alert('Add item connection error: ' + err.message);
+            }
+        }
+
+        // ------------------ TOAST NOTIFICATION POLLER ------------------
+        async function pollNotifications() {
+            if (!sessionUser) return;
+            try {
+                const res = await fetch(`${API_ROOT}/api/notifications?user_id=${sessionUser.id}`);
+                const data = await res.json();
+                
+                data.forEach(n => {
+                    showToast("Event Reminder", n.message);
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function showToast(title, body) {
+            const container = document.getElementById('toastContainer');
+            
+            const card = document.createElement('div');
+            card.className = 'toast-card';
+            card.innerHTML = `
+                <div class="toast-title">${escapeHTML(title)}</div>
+                <div class="toast-body">${escapeHTML(body)}</div>
+            `;
+            container.appendChild(card);
+
+            // Play a soft notification audio beep if wanted, otherwise just remove after 6 seconds
+            setTimeout(() => {
+                card.style.animation = 'fadeSlide 0.3s ease reverse forwards';
+                setTimeout(() => card.remove(), 300);
+            }, 6000);
+        }
+
+        // ------------------ STRING ESCAPING UTILS ------------------
+        function escapeHTML(str) {
+            if (!str) return '';
+            return str.replace(/&/g, "&amp;")
+                      .replace(/</g, "&lt;")
+                      .replace(/>/g, "&gt;")
+                      .replace(/"/g, "&quot;")
+                      .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
