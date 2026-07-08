@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: bookMyDistrict
+    env: docker
+    dockerfilePath: ./Dockerfile
+    # Render sets $PORT automatically — the app reads it at startup
+    envVars:
+      - key: DATABASE_URL
+        value: jdbc:sqlite:/data/district.db
+    disk:
+      name: sqlite-data
+      mountPath: /data
+      sizeGB: 1
